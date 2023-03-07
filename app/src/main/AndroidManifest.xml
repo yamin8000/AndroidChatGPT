@@ -1,24 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
-        android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AndroidChatGPT"
-        tools:targetApi="31">
+        android:theme="@style/Theme.AndroidChatGPT">
         <activity
-            android:name=".MainActivity"
+            android:name=".content.MainActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|keyboard|locale|screenLayout|screenSize"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.AndroidChatGPT">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
