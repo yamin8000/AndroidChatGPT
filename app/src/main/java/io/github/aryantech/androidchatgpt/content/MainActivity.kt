@@ -62,12 +62,15 @@ fun MainContent(
             startDestination = Nav.Routes.home
         ) {
             composable(Nav.Routes.home) {
-                HomeContent()
+                HomeContent(
+                    onSettingsClick = { navController.navigate(Nav.Routes.settings) }
+                )
             }
 
             composable(Nav.Routes.settings) {
                 SettingsContent(
-                    onThemeChanged = { newTheme -> theme = newTheme }
+                    onThemeChanged = { newTheme -> theme = newTheme },
+                    onBackClick = { navController.popBackStack() }
                 )
             }
 
