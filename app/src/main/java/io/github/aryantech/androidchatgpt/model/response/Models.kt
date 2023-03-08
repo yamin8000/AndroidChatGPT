@@ -1,4 +1,4 @@
-package io.github.aryantech.androidchatgpt.model
+package io.github.aryantech.androidchatgpt.model.response
 
 import com.squareup.moshi.Json
 
