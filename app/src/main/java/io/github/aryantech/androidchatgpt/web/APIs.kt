@@ -9,14 +9,18 @@ import retrofit2.http.POST
 
 sealed interface AppAPIs
 
-interface APIs {
+object APIs {
 
-    @GET("models")
-    suspend fun getAllModels(): Models
+    interface ModelsAPIs {
+        @GET("models")
+        suspend fun getAllModels(): Models
 
-    @GET("models/{model}")
-    suspend fun getModel(model: String): Model
+        @GET("models/{model}")
+        suspend fun getModel(model: String): Model
+    }
 
-    @POST("completions")
-    suspend fun createCompletion(createCompletion: CreateCompletion): Completion
+    interface CompletionsAPIs {
+        @POST("completions")
+        suspend fun createCompletion(createCompletion: CreateCompletion): Completion
+    }
 }

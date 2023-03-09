@@ -3,27 +3,21 @@ package io.github.aryantech.androidchatgpt.content.settings
 import android.os.Build
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.twotone.DataArray
 import androidx.compose.material.icons.twotone.DisplaySettings
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.aryantech.androidchatgpt.R
 import io.github.aryantech.androidchatgpt.content.ThemeSetting
-import io.github.aryantech.androidchatgpt.ui.composables.PersianText
-import io.github.aryantech.androidchatgpt.ui.composables.ScaffoldWithTitle
-import io.github.aryantech.androidchatgpt.ui.composables.SettingsItem
-import io.github.aryantech.androidchatgpt.ui.composables.SettingsItemCard
+import io.github.aryantech.androidchatgpt.ui.composables.*
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,7 +42,45 @@ fun SettingsContent(
                     onThemeChanged(newTheme)
                 }
             }
+            item {
+                ApiModelSetting(
+                    apiModel = state.apiModel.value,
+                    apiModels = state.apiModels.value,
+                    onApiModelChange = { state.scope.launch { state.updateApiModel(it) } }
+                )
+            }
         }
+    }
+}
+
+@Composable
+fun ApiModelSetting(
+    apiModel: String,
+    apiModels: List<String>,
+    onApiModelChange: (String) -> Unit
+) {
+    var isShowingDialog by remember { mutableStateOf(false) }
+    SettingChangerDialog(
+        isEnabled = isShowingDialog,
+        title = stringResource(R.string.apiModel),
+        options = apiModels,
+        currentSetting = apiModel,
+        onSettingChange = onApiModelChange,
+        onDismiss = { isShowingDialog = false }
+    )
+    SettingsItemCard(
+        title = stringResource(R.string.apiModel)
+    ) {
+        SettingsItem(
+            onClick = { isShowingDialog = true },
+            content = {
+                Icon(
+                    imageVector = Icons.TwoTone.DataArray,
+                    contentDescription = stringResource(R.string.apiModel)
+                )
+                Text(apiModel)
+            }
+        )
     }
 }
 
@@ -58,17 +90,21 @@ fun ThemeSetting(
     onCurrentThemeChange: (ThemeSetting) -> Unit
 ) {
     var isShowingThemeDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    SettingChangerDialog(
+        isEnabled = isShowingThemeDialog,
+        title = stringResource(R.string.theme),
+        options = ThemeSetting.values().toList(),
+        currentSetting = currentTheme,
+        onSettingChange = onCurrentThemeChange,
+        onDismiss = { isShowingThemeDialog = false },
+        displayProvider = { context.getString(it.persianNameStringResource) }
+    )
 
     SettingsItemCard(
         title = stringResource(R.string.theme)
     ) {
-        if (isShowingThemeDialog) {
-            ThemeChangerDialog(
-                currentTheme = currentTheme,
-                onCurrentThemeChange = onCurrentThemeChange,
-                onDismiss = { isShowingThemeDialog = false }
-            )
-        }
         SettingsItem(
             onClick = { isShowingThemeDialog = true },
             content = {
@@ -76,67 +112,12 @@ fun ThemeSetting(
                     imageVector = Icons.TwoTone.DisplaySettings,
                     contentDescription = stringResource(R.string.theme)
                 )
-                PersianText(
-                    text = stringResource(currentTheme.persianNameStringResource),
-                    modifier = Modifier.padding()
-                )
+                PersianText(stringResource(currentTheme.persianNameStringResource))
             }
         )
         if (currentTheme == ThemeSetting.System && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
             DynamicThemeNotice()
     }
-}
-
-@Composable
-fun ThemeChangerDialog(
-    currentTheme: ThemeSetting,
-    onCurrentThemeChange: (ThemeSetting) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val themes = remember { ThemeSetting.values() }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = { /*ignored*/ },
-        title = { PersianText(stringResource(R.string.theme)) },
-        icon = { Icon(imageVector = Icons.TwoTone.DisplaySettings, contentDescription = null) },
-        text = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .selectableGroup()
-                    .fillMaxWidth()
-            ) {
-                themes.forEach { theme ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.Start),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .selectable(
-                                selected = (theme == currentTheme),
-                                role = Role.RadioButton,
-                                onClick = {
-                                    onCurrentThemeChange(theme)
-                                    onDismiss()
-                                }
-                            )
-                    ) {
-                        RadioButton(
-                            selected = (theme == currentTheme),
-                            onClick = null,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
-                        PersianText(
-                            text = stringResource(theme.persianNameStringResource),
-                            modifier = Modifier.padding(vertical = 16.dp)
-                        )
-                    }
-                }
-            }
-        }
-    )
 }
 
 @Composable

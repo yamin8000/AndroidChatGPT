@@ -4,9 +4,12 @@ import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.ArrowBack
 import androidx.compose.material.icons.twotone.ArrowDropDownCircle
+import androidx.compose.material.icons.twotone.DisplaySettings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -16,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -33,6 +37,63 @@ import io.github.aryantech.androidchatgpt.R
 import io.github.aryantech.androidchatgpt.ui.theme.DefaultCutShape
 import io.github.aryantech.androidchatgpt.ui.theme.IranYekan
 import io.github.aryantech.androidchatgpt.util.getCurrentLocale
+
+@Composable
+fun <T> SettingChangerDialog(
+    isEnabled: Boolean,
+    title: String,
+    options: List<T>,
+    currentSetting: T,
+    onSettingChange: (T) -> Unit,
+    onDismiss: () -> Unit,
+    displayProvider: ((T) -> String) = { it.toString() }
+) {
+    if (isEnabled) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            confirmButton = { /*ignored*/ },
+            title = { PersianText(title) },
+            icon = { Icon(imageVector = Icons.TwoTone.DisplaySettings, contentDescription = null) },
+            text = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .selectableGroup()
+                        .fillMaxWidth()
+                ) {
+                    options.forEach { setting ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.Start),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .selectable(
+                                    selected = (setting == currentSetting),
+                                    role = Role.RadioButton,
+                                    onClick = {
+                                        onSettingChange(setting)
+                                        onDismiss()
+                                    }
+                                )
+                        ) {
+                            RadioButton(
+                                selected = (setting == currentSetting),
+                                onClick = null,
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                            PersianText(
+                                text = displayProvider(setting),
+                                modifier = Modifier.padding(vertical = 16.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        )
+    }
+}
 
 @Composable
 fun SettingsItemCard(
