@@ -25,7 +25,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
-val Context.modelsDataStore: DataStore<Preferences> by preferencesDataStore(name = "models")
 
 class MainActivity : ComponentActivity() {
 

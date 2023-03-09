@@ -4,6 +4,8 @@ import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
@@ -55,7 +57,7 @@ fun <T> SettingChangerDialog(
             title = { PersianText(title) },
             icon = { Icon(imageVector = Icons.TwoTone.DisplaySettings, contentDescription = null) },
             text = {
-                Column(
+                LazyColumn(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
@@ -63,7 +65,7 @@ fun <T> SettingChangerDialog(
                         .selectableGroup()
                         .fillMaxWidth()
                 ) {
-                    options.forEach { setting ->
+                    items(options) { setting ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.Start),

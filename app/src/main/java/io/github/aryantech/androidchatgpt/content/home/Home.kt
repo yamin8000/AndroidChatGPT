@@ -9,26 +9,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.coroutineScope
-import io.github.aryantech.androidchatgpt.util.Constants
+import io.github.aryantech.androidchatgpt.util.log
 import io.github.aryantech.androidchatgpt.web.APIs
+import io.github.aryantech.androidchatgpt.web.ApiKey
 import io.github.aryantech.androidchatgpt.web.Web
 import io.github.aryantech.androidchatgpt.web.Web.apiOf
-import kotlinx.coroutines.launch
+import okhttp3.*
+import java.io.IOException
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeContent(
     onSettingsClick: () -> Unit
 ) {
-    Log.d(Constants.LOG_TAG, "Hello there!")
-    var models = listOf<String>()
-    LaunchedEffect(Unit) {
-        models = Web.getRetrofit().apiOf<APIs.ModelsAPIs>().getAllModels().data.map { it.obj }
-        Log.d(Constants.LOG_TAG, "Hello there!")
-    }
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     Surface(
@@ -48,7 +42,7 @@ fun HomeContent(
                         .padding(paddingValues)
                         .padding(8.dp)
                 ) {
-                    Text(models.toString())
+                    Text("Hello there!")
                     Button(
                         onClick = {},
                         content = { Text("OK") },

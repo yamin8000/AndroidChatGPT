@@ -1,7 +1,6 @@
 package io.github.aryantech.androidchatgpt.content.settings
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -12,10 +11,10 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.lifecycleScope
 import io.github.aryantech.androidchatgpt.content.ThemeSetting
-import io.github.aryantech.androidchatgpt.content.modelsDataStore
 import io.github.aryantech.androidchatgpt.content.settingsDataStore
 import io.github.aryantech.androidchatgpt.util.Constants
 import io.github.aryantech.androidchatgpt.util.DataStoreHelper
+import io.github.aryantech.androidchatgpt.util.log
 import io.github.aryantech.androidchatgpt.web.APIs
 import io.github.aryantech.androidchatgpt.web.Web
 import io.github.aryantech.androidchatgpt.web.Web.apiOf
@@ -36,11 +35,13 @@ class SettingsState(
                 settings.getString(Constants.THEME) ?: ThemeSetting.System.name
             )
             apiModel.value = settings.getString(Constants.API_MODEL) ?: Constants.DEFAULT_API_MODEL
-            context.modelsDataStore.data.collect { prefs ->
-                apiModels.value = prefs.asMap().values.map { it.toString() }
-            }
-            if (apiModels.value.isEmpty())
+            apiModels.value = settings.getStringSet(Constants.API_MODELS)?.toList() ?: listOf()
+            if (apiModels.value.isEmpty()) {
+                "it's empty".log()
                 apiModels.value = getModelsFromApi()
+                updateApiModels(apiModels.value)
+                apiModels.value.toString().log()
+            } else "well well well!".log()
         }
     }
 
@@ -49,7 +50,7 @@ class SettingsState(
             .apiOf<APIs.ModelsAPIs>()
             .getAllModels()
             .data
-            .map { it.obj }
+            .map { it.id }
     }
 
     suspend fun updateThemeSetting(
@@ -64,6 +65,13 @@ class SettingsState(
     ) {
         apiModel.value = newModel
         settings.setString(Constants.API_MODEL, newModel)
+    }
+
+    private suspend fun updateApiModels(
+        models: List<String>
+    ) {
+        apiModels.value = models
+        settings.setStringSet(Constants.API_MODELS, models.toSet())
     }
 }
 
