@@ -1,6 +1,7 @@
 package io.github.aryantech.androidchatgpt.web
 
 object ApiKey {
-    const val KEY = "Bearer "
+    @Suppress("SpellCheckingInspection")
+    const val KEY = "Bearer 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"
     const val AUTHORIZATION = "Authorization"
 }
