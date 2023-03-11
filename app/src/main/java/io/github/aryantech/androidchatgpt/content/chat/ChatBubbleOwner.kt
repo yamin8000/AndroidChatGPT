@@ -1,4 +1,4 @@
-package io.github.aryantech.androidchatgpt.content.home
+package io.github.aryantech.androidchatgpt.content.chat
 
 enum class ChatBubbleOwner {
     User, Ai;

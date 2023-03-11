@@ -11,4 +11,5 @@
     <string name="chat_input">Chat</string>
     <string name="delete">Clear</string>
     <string name="send">Send</string>
+    <string name="new_chat">New Chat</string>
 </resources>

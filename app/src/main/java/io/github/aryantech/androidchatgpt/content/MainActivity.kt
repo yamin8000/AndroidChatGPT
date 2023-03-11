@@ -14,6 +14,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import io.github.aryantech.androidchatgpt.content.chat.ChatContent
 import io.github.aryantech.androidchatgpt.content.home.HomeContent
 import io.github.aryantech.androidchatgpt.content.settings.SettingsContent
 import io.github.aryantech.androidchatgpt.ui.Nav
@@ -63,6 +64,14 @@ fun MainContent(
         ) {
             composable(Nav.Routes.home) {
                 HomeContent(
+                    onSettingsClick = { navController.navigate(Nav.Routes.settings) },
+                    onNewChat = { navController.navigate(Nav.Routes.chat) }
+                )
+            }
+
+            composable(Nav.Routes.chat) {
+                ChatContent(
+                    onBackClick = { navController.popBackStack() },
                     onSettingsClick = { navController.navigate(Nav.Routes.settings) }
                 )
             }
