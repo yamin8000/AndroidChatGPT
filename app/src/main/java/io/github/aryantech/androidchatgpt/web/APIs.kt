@@ -1,5 +1,7 @@
 package io.github.aryantech.androidchatgpt.web
 
+import io.github.aryantech.androidchatgpt.model.response.ChatCompletion
+import io.github.aryantech.androidchatgpt.model.request.CreateChatCompletion
 import io.github.aryantech.androidchatgpt.model.request.CreateCompletion
 import io.github.aryantech.androidchatgpt.model.response.Completion
 import io.github.aryantech.androidchatgpt.model.response.Model
@@ -23,5 +25,11 @@ object APIs {
     interface CompletionsAPIs {
         @POST("completions")
         suspend fun createCompletion(@Body createCompletion: CreateCompletion): Completion
+    }
+
+    interface ChatCompletionsAPIs {
+
+        @POST("chat/completions")
+        suspend fun createChatCompletions(@Body createChatCompletion: CreateChatCompletion): ChatCompletion
     }
 }

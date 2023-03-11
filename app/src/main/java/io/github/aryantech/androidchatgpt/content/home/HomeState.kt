@@ -10,6 +10,8 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.lifecycleScope
+import io.github.aryantech.androidchatgpt.model.Chat
+import io.github.aryantech.androidchatgpt.model.request.CreateChatCompletion
 import io.github.aryantech.androidchatgpt.model.request.CreateCompletion
 import io.github.aryantech.androidchatgpt.web.APIs
 import io.github.aryantech.androidchatgpt.web.Web
@@ -18,7 +20,7 @@ import kotlinx.coroutines.launch
 
 class HomeState(
     val chatInput: MutableState<String>,
-    val chat: MutableState<List<String>>,
+    val chat: MutableState<List<Chat>>,
     private val focusManager: FocusManager,
     private val scope: LifecycleCoroutineScope
 ) {
@@ -27,16 +29,16 @@ class HomeState(
         chatInput: String
     ) {
         resetInput()
-        chat.value = chat.value + chatInput
+        chat.value = chat.value + Chat(role = "user", content = chatInput)
 
         scope.launch {
-            val output = retrofit.apiOf<APIs.CompletionsAPIs>().createCompletion(
-                CreateCompletion(
-                    model = "text-davinci-003",
-                    prompt = listOf(chatInput)
+            val output = retrofit.apiOf<APIs.ChatCompletionsAPIs>().createChatCompletions(
+                CreateChatCompletion(
+                    model = "gpt-3.5-turbo",
+                    messages = chat.value
                 )
             )
-            chat.value = chat.value + output.choices.first().text
+            chat.value = chat.value + output.choices.first().message
         }
     }
 
@@ -49,7 +51,7 @@ class HomeState(
 @Composable
 fun rememberHomeState(
     chatInput: MutableState<String> = rememberSaveable { mutableStateOf("") },
-    chat: MutableState<List<String>> = rememberSaveable { mutableStateOf(listOf()) },
+    chat: MutableState<List<Chat>> = rememberSaveable { mutableStateOf(listOf()) },
     focusManager: FocusManager = LocalFocusManager.current,
     scope: LifecycleCoroutineScope = LocalLifecycleOwner.current.lifecycleScope
 ) = remember(chatInput, chat, focusManager, scope) {
