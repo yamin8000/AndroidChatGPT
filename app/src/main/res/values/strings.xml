@@ -12,4 +12,5 @@
     <string name="delete">Clear</string>
     <string name="send">Send</string>
     <string name="new_chat">New Chat</string>
+    <string name="model_not_supported">Selected model is not supported for current option.</string>
 </resources>

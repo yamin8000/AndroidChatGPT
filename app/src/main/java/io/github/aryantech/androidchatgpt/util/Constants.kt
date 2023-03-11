@@ -5,5 +5,6 @@ object Constants {
     const val THEME = "theme"
     const val API_MODEL = "api_model"
     const val API_MODELS = "api_models"
-    const val DEFAULT_API_MODEL = ""
+    const val DEFAULT_API_MODEL = "gpt-3.5-turbo"
+    val CHAT_MODELS = listOf("gpt-3.5-turbo", "gpt-3.5-turbo-0301")
 }

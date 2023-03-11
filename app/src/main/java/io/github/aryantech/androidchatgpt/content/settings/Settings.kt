@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.twotone.DataArray
 import androidx.compose.material.icons.twotone.Dataset
 import androidx.compose.material.icons.twotone.DisplaySettings
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -64,7 +63,7 @@ fun ApiModelSetting(
     SettingChangerDialog(
         isEnabled = isShowingDialog,
         title = stringResource(R.string.apiModel),
-        options = apiModels,
+        options = apiModels.sorted(),
         currentSetting = apiModel,
         onSettingChange = onApiModelChange,
         onDismiss = { isShowingDialog = false }
@@ -79,7 +78,7 @@ fun ApiModelSetting(
                     imageVector = Icons.TwoTone.Dataset,
                     contentDescription = stringResource(R.string.apiModel)
                 )
-                Text(apiModel)
+                PersianText(apiModel)
             }
         )
     }

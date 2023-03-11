@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.ArrowBack
 import androidx.compose.material.icons.twotone.ArrowDropDownCircle
@@ -39,6 +40,34 @@ import io.github.aryantech.androidchatgpt.R
 import io.github.aryantech.androidchatgpt.ui.theme.DefaultCutShape
 import io.github.aryantech.androidchatgpt.ui.theme.IranYekan
 import io.github.aryantech.androidchatgpt.util.getCurrentLocale
+
+@Composable
+fun MySnackbar(
+    modifier: Modifier = Modifier,
+    action: @Composable (() -> Unit)? = null,
+    dismissAction: @Composable (() -> Unit)? = null,
+    actionOnNewLine: Boolean = false,
+    containerColor: Color = SnackbarDefaults.color,
+    contentColor: Color = SnackbarDefaults.contentColor,
+    actionContentColor: Color = SnackbarDefaults.actionContentColor,
+    dismissActionContentColor: Color = SnackbarDefaults.dismissActionContentColor,
+    content: @Composable () -> Unit
+) {
+    Snackbar(
+        modifier = modifier
+            .padding(vertical = 16.dp, horizontal = 16.dp)
+            .padding(WindowInsets.ime.asPaddingValues()),
+        action = action,
+        dismissAction = dismissAction,
+        actionOnNewLine = actionOnNewLine,
+        shape = RoundedCornerShape(10.dp),
+        containerColor = containerColor,
+        contentColor = contentColor,
+        actionContentColor = actionContentColor,
+        dismissActionContentColor = dismissActionContentColor,
+        content = content
+    )
+}
 
 @Composable
 fun <T> SettingChangerDialog(
@@ -165,41 +194,48 @@ fun SettingsItem(
 @Composable
 fun ScaffoldWithTitle(
     title: String,
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
-    onBackClick: () -> Unit,
+    actions: @Composable RowScope.() -> Unit = {},
+    snackbarHost: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
     content: @Composable BoxScope.() -> Unit
 ) {
     Scaffold(
+        snackbarHost = snackbarHost,
+        bottomBar = bottomBar,
         modifier = modifier
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             Surface(
-                shadowElevation = 8.dp
-            ) {
-                TopAppBar(
-                    scrollBehavior = scrollBehavior,
-                    title = {
-                        PersianText(
-                            text = title,
-                            fontSize = 20.sp,
-                            textAlign = TextAlign.Center
-                        )
-                    },
-                    actions = {
-                        IconButton(
-                            onClick = onBackClick,
-                            content = {
-                                Icon(
-                                    imageVector = Icons.TwoTone.ArrowBack,
-                                    contentDescription = stringResource(R.string.back)
-                                )
-                            }
-                        )
-                    }
-                )
-            }
+                shadowElevation = 8.dp,
+                content = {
+                    TopAppBar(
+                        scrollBehavior = scrollBehavior,
+                        title = {
+                            PersianText(
+                                text = title,
+                                fontSize = 20.sp,
+                                textAlign = TextAlign.Center
+                            )
+                        },
+                        actions = {
+                            actions()
+                            IconButton(
+                                onClick = onBackClick,
+                                content = {
+                                    Icon(
+                                        imageVector = Icons.TwoTone.ArrowBack,
+                                        contentDescription = stringResource(R.string.back)
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            )
         },
         content = {
             Box(
