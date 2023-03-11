@@ -6,11 +6,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.Dataset
 import androidx.compose.material.icons.twotone.DisplaySettings
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -18,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import io.github.aryantech.androidchatgpt.R
 import io.github.aryantech.androidchatgpt.content.ThemeSetting
 import io.github.aryantech.androidchatgpt.ui.composables.*
+import io.github.aryantech.androidchatgpt.util.Constants
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,6 +83,23 @@ fun ApiModelSetting(
                 PersianText(apiModel)
             }
         )
+        if (apiModel !in Constants.CHAT_MODELS) {
+            PersianText(
+                modifier = Modifier.fillMaxWidth(),
+                text = buildString {
+                    append(stringResource(R.string.suggested_model_for_chat))
+                    append("\n")
+                    Constants.CHAT_MODELS.forEach {
+                        append("${it}\n")
+                    }
+                    trim()
+                }
+            )
+            Button(
+                onClick = { onApiModelChange(Constants.CHAT_MODELS.first()) },
+                content = { PersianText(stringResource(R.string.change_it_to_default)) }
+            )
+        }
     }
 }
 
