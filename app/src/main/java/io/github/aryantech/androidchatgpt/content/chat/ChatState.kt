@@ -44,6 +44,8 @@ class ChatState(
     private val isModelSupported: Boolean
         get() = model.value in Constants.CHAT_MODELS
 
+    var isWaitingForResponse = false
+
     val snackbarHost = SnackbarHostState()
 
     init {
@@ -68,12 +70,14 @@ class ChatState(
         chat.value = chat.value + Chat(role = "user", content = chatInput)
 
         scope.launch {
+            isWaitingForResponse = true
             val output = retrofit.apiOf<APIs.ChatCompletionsAPIs>().createChatCompletions(
                 CreateChatCompletion(
                     model = model.value,
                     messages = chat.value
                 )
             )
+            isWaitingForResponse = false
             updateChat(output.choices.first().message)
         }
     }

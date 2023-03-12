@@ -6,6 +6,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -25,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.aryantech.androidchatgpt.R
+import io.github.aryantech.androidchatgpt.ui.animation.AnimatedDots
 import io.github.aryantech.androidchatgpt.ui.composables.MySnackbar
 import io.github.aryantech.androidchatgpt.ui.composables.PersianText
 import io.github.aryantech.androidchatgpt.ui.composables.ScaffoldWithTitle
@@ -81,28 +83,35 @@ fun ChatContent(
                         owner = ChatBubbleOwner.of(it.role)
                     )
                 }
+                if (state.isWaitingForResponse) {
+                    item {
+                        ChatBubble(
+                            owner = ChatBubbleOwner.Ai,
+                            content = {
+                                Box(
+                                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
+                                    content = { AnimatedDots() }
+                                )
+                            }
+                        )
+                    }
+                }
             }
         },
         bottomBar = {
             BottomAppBar {
                 TextField(
                     singleLine = false,
+                    label = { PersianText(text = stringResource(R.string.chat_input)) },
+                    value = state.chatInput.value,
+                    onValueChange = { state.chatInput.value = it },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp, 0.dp, 16.dp, 0.dp)
                         .combinedClickable(
                             onClick = {},
-                            onDoubleClick = {
-
-                            }
+                            onDoubleClick = { }
                         ),
-                    label = {
-                        PersianText(
-                            text = stringResource(R.string.chat_input)
-                        )
-                    },
-                    value = state.chatInput.value,
-                    onValueChange = { state.chatInput.value = it },
                     leadingIcon = {
                         IconButton(
                             onClick = { state.chatInput.value = "" },
@@ -141,10 +150,30 @@ fun ChatContent(
 @Composable
 fun ChatBubble(
     content: String,
-    owner: ChatBubbleOwner
+    owner: ChatBubbleOwner,
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 
+    ChatBubble(
+        owner = owner,
+        content = {
+            PersianText(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .clickable { isExpanded = !isExpanded },
+                text = content.trim(),
+                overflow = TextOverflow.Ellipsis,
+                maxLines = if (isExpanded) Int.MAX_VALUE else 10
+            )
+        }
+    )
+}
+
+@Composable
+fun ChatBubble(
+    content: @Composable (ColumnScope.() -> Unit),
+    owner: ChatBubbleOwner
+) {
     val container = if (owner == ChatBubbleOwner.User) {
         MaterialTheme.colorScheme.secondaryContainer
     } else MaterialTheme.colorScheme.tertiaryContainer
@@ -172,18 +201,10 @@ fun ChatBubble(
         horizontalArrangement = arrangement
     ) {
         ElevatedCard(
-            modifier = Modifier
-                .padding(4.dp)
-                .clickable { isExpanded = !isExpanded },
+            modifier = Modifier.padding(4.dp),
             colors = CardDefaults.cardColors(containerColor = container),
-            shape = shape
-        ) {
-            PersianText(
-                modifier = Modifier.padding(8.dp),
-                text = content.trim(),
-                overflow = TextOverflow.Ellipsis,
-                maxLines = if (isExpanded) Int.MAX_VALUE else 5
-            )
-        }
+            shape = shape,
+            content = content
+        )
     }
 }
