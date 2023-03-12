@@ -18,6 +18,9 @@ import androidx.compose.material.icons.twotone.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -31,7 +34,6 @@ import io.github.aryantech.androidchatgpt.ui.composables.InternetAwareComposable
 import io.github.aryantech.androidchatgpt.ui.composables.MySnackbar
 import io.github.aryantech.androidchatgpt.ui.composables.PersianText
 import io.github.aryantech.androidchatgpt.ui.composables.ScaffoldWithTitle
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -39,10 +41,12 @@ fun ChatContent(
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
-    val noInternet = stringResource(R.string.no_internet_connection)
     val state = rememberChatState()
 
     val listState = rememberLazyListState()
+
+    if (listState.isScrollInProgress)
+        LocalHapticFeedback.current.performHapticFeedback(HapticFeedbackType.TextHandleMove)
 
     LaunchedEffect(state.chat.value.size) {
         val index = state.chat.value.size - 1
@@ -177,11 +181,10 @@ fun ChatBubble(
 
     ChatBubble(
         owner = owner,
+        onClick = { isExpanded = !isExpanded },
         content = {
             PersianText(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .clickable { isExpanded = !isExpanded },
+                modifier = Modifier.padding(8.dp),
                 text = content.trim(),
                 overflow = TextOverflow.Ellipsis,
                 maxLines = if (isExpanded) Int.MAX_VALUE else 10
@@ -193,7 +196,8 @@ fun ChatBubble(
 @Composable
 fun ChatBubble(
     content: @Composable (ColumnScope.() -> Unit),
-    owner: ChatBubbleOwner
+    owner: ChatBubbleOwner,
+    onClick: () -> Unit = {}
 ) {
     val container = if (owner == ChatBubbleOwner.User) {
         MaterialTheme.colorScheme.secondaryContainer
@@ -222,10 +226,13 @@ fun ChatBubble(
         horizontalArrangement = arrangement
     ) {
         ElevatedCard(
-            modifier = Modifier.padding(4.dp),
             colors = CardDefaults.cardColors(containerColor = container),
             shape = shape,
-            content = content
+            content = content,
+            modifier = Modifier
+                .padding(4.dp)
+                .clip(shape)
+                .clickable { onClick() }
         )
     }
 }
