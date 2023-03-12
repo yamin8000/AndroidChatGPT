@@ -40,7 +40,42 @@ import io.github.aryantech.androidchatgpt.R
 import io.github.aryantech.androidchatgpt.ui.theme.DefaultCutShape
 import io.github.aryantech.androidchatgpt.ui.theme.IranYekan
 import io.github.aryantech.androidchatgpt.util.Constants
+import io.github.aryantech.androidchatgpt.util.Constants.DNS_SERVERS
+import io.github.aryantech.androidchatgpt.util.Constants.INTERNET_CHECK_DELAY
 import io.github.aryantech.androidchatgpt.util.getCurrentLocale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
+
+@Composable
+fun InternetAwareComposable(
+    dnsServers: List<String> = DNS_SERVERS,
+    delay: Long = INTERNET_CHECK_DELAY,
+    successContent: (@Composable () -> Unit)? = null,
+    errorContent: (@Composable () -> Unit)? = null,
+    onlineChanged: ((Boolean) -> Unit)? = null
+) {
+    suspend fun dnsAccessible(
+        dnsServer: String
+    ) = try {
+        withContext(Dispatchers.IO) {
+            Runtime.getRuntime().exec("/system/bin/ping -c 1 $dnsServer").waitFor()
+        } == 0
+    } catch (e: Exception) {
+        false
+    }
+
+    var isOnline by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            isOnline = dnsServers.any { dnsAccessible(it) }
+            onlineChanged?.invoke(isOnline)
+            delay(delay)
+        }
+    }
+    if (isOnline) successContent?.invoke()
+    else errorContent?.invoke()
+}
 
 @Composable
 fun MySnackbar(

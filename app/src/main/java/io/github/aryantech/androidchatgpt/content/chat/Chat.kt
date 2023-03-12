@@ -1,5 +1,6 @@
 package io.github.aryantech.androidchatgpt.content.chat
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -26,9 +27,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.aryantech.androidchatgpt.R
 import io.github.aryantech.androidchatgpt.ui.animation.AnimatedDots
+import io.github.aryantech.androidchatgpt.ui.composables.InternetAwareComposable
 import io.github.aryantech.androidchatgpt.ui.composables.MySnackbar
 import io.github.aryantech.androidchatgpt.ui.composables.PersianText
 import io.github.aryantech.androidchatgpt.ui.composables.ScaffoldWithTitle
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -36,6 +39,7 @@ fun ChatContent(
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
+    val noInternet = stringResource(R.string.no_internet_connection)
     val state = rememberChatState()
 
     val listState = rememberLazyListState()
@@ -45,6 +49,8 @@ fun ChatContent(
         if (index > 0)
             listState.animateScrollToItem(index)
     }
+
+    InternetAwareComposable { state.isOnline.value = it }
 
     ScaffoldWithTitle(
         title = stringResource(R.string.new_chat) + " ${state.model.value}",
@@ -76,6 +82,21 @@ fun ChatContent(
                 state = listState,
                 modifier = Modifier.fillMaxSize()
             ) {
+                item {
+                    AnimatedVisibility(
+                        visible = !state.isOnline.value,
+                        enter = slideInVertically() + fadeIn(),
+                        exit = slideOutVertically() + fadeOut()
+                    ) {
+                        PersianText(
+                            text = stringResource(R.string.no_internet_connection),
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth()
+                        )
+                    }
+                }
                 items(state.chat.value) {
                     ChatBubble(
                         content = it.content,

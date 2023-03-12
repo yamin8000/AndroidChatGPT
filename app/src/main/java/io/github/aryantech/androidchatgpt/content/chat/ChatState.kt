@@ -1,7 +1,6 @@
 package io.github.aryantech.androidchatgpt.content.chat
 
 import android.content.Context
-import androidx.compose.material.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -16,12 +15,11 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.lifecycleScope
 import io.github.aryantech.androidchatgpt.R
-import io.github.aryantech.androidchatgpt.content.home.HomeState
 import io.github.aryantech.androidchatgpt.content.settingsDataStore
 import io.github.aryantech.androidchatgpt.model.Chat
 import io.github.aryantech.androidchatgpt.model.request.CreateChatCompletion
-import io.github.aryantech.androidchatgpt.model.response.ChatCompletion
 import io.github.aryantech.androidchatgpt.util.Constants
+import io.github.aryantech.androidchatgpt.util.log
 import io.github.aryantech.androidchatgpt.web.APIs
 import io.github.aryantech.androidchatgpt.web.Web
 import io.github.aryantech.androidchatgpt.web.Web.apiOf
@@ -33,9 +31,10 @@ class ChatState(
     val chatInput: MutableState<String>,
     val chat: MutableState<List<Chat>>,
     val model: MutableState<String>,
+    val isOnline: MutableState<Boolean>,
     context: Context,
     private val focusManager: FocusManager,
-    private val scope: LifecycleCoroutineScope
+    val scope: LifecycleCoroutineScope
 ) {
     private val retrofit = Web.getRetrofit()
 
@@ -74,16 +73,28 @@ class ChatState(
         scope.launch {
             isWaitingForResponse = true
             isInputAllowed = false
-            val output = retrofit.apiOf<APIs.ChatCompletionsAPIs>().createChatCompletions(
-                CreateChatCompletion(
-                    model = model.value,
-                    messages = chat.value
+            val output = try {
+                retrofit.apiOf<APIs.ChatCompletionsAPIs>().createChatCompletions(
+                    CreateChatCompletion(
+                        model = model.value,
+                        messages = chat.value
+                    )
                 )
-            )
+            } catch (e: Exception) {
+                handleError(e)
+                null
+            }
             isWaitingForResponse = false
             isInputAllowed = true
-            updateChat(output.choices.first().message)
+            if (output != null)
+                updateChat(output.choices.first().message)
         }
+    }
+
+    private fun handleError(
+        exception: Exception
+    ) {
+        exception.stackTraceToString().log()
     }
 
     private fun updateChat(
@@ -103,9 +114,10 @@ fun rememberChatState(
     chatInput: MutableState<String> = rememberSaveable { mutableStateOf("") },
     chat: MutableState<List<Chat>> = remember { mutableStateOf(listOf()) },
     model: MutableState<String> = rememberSaveable { mutableStateOf(Constants.DEFAULT_API_MODEL) },
+    isOnline: MutableState<Boolean> = rememberSaveable { mutableStateOf(true) },
     context: Context = LocalContext.current,
     focusManager: FocusManager = LocalFocusManager.current,
     scope: LifecycleCoroutineScope = LocalLifecycleOwner.current.lifecycleScope
-) = remember(chatInput, chat, model, context, focusManager, scope) {
-    ChatState(chatInput, chat, model, context, focusManager, scope)
+) = remember(chatInput, chat, model, isOnline, context, focusManager, scope) {
+    ChatState(chatInput, chat, model, isOnline, context, focusManager, scope)
 }

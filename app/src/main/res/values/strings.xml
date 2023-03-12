@@ -15,4 +15,5 @@
     <string name="model_not_supported">Selected model is not supported for current option.</string>
     <string name="suggested_model_for_chat">It\'s better to use these models for chat:</string>
     <string name="change_it_to_default">Change to default</string>
+    <string name="no_internet_connection">There\'s no internet connection.</string>
 </resources>
