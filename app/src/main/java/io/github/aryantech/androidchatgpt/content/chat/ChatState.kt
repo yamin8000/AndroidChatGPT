@@ -46,6 +46,8 @@ class ChatState(
 
     var isWaitingForResponse = false
 
+    var isInputAllowed = true
+
     val snackbarHost = SnackbarHostState()
 
     init {
@@ -71,6 +73,7 @@ class ChatState(
 
         scope.launch {
             isWaitingForResponse = true
+            isInputAllowed = false
             val output = retrofit.apiOf<APIs.ChatCompletionsAPIs>().createChatCompletions(
                 CreateChatCompletion(
                     model = model.value,
@@ -78,6 +81,7 @@ class ChatState(
                 )
             )
             isWaitingForResponse = false
+            isInputAllowed = true
             updateChat(output.choices.first().message)
         }
     }
@@ -97,7 +101,7 @@ class ChatState(
 @Composable
 fun rememberChatState(
     chatInput: MutableState<String> = rememberSaveable { mutableStateOf("") },
-    chat: MutableState<List<Chat>> = rememberSaveable { mutableStateOf(listOf()) },
+    chat: MutableState<List<Chat>> = remember { mutableStateOf(listOf()) },
     model: MutableState<String> = rememberSaveable { mutableStateOf(Constants.DEFAULT_API_MODEL) },
     context: Context = LocalContext.current,
     focusManager: FocusManager = LocalFocusManager.current,

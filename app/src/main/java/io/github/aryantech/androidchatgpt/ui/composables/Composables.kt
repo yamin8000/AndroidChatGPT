@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import io.github.aryantech.androidchatgpt.R
 import io.github.aryantech.androidchatgpt.ui.theme.DefaultCutShape
 import io.github.aryantech.androidchatgpt.ui.theme.IranYekan
+import io.github.aryantech.androidchatgpt.util.Constants
 import io.github.aryantech.androidchatgpt.util.getCurrentLocale
 
 @Composable
@@ -270,27 +271,30 @@ fun PersianText(
 ) {
     var localStyle = style
     var localFontFamily = fontFamily
-    val currentLocale = getCurrentLocale(LocalContext.current)
-    if (currentLocale.language == Locale("fa").language) {
+    val currentLocale = getCurrentLocale(LocalContext.current).language
+    var localFontWeight = fontWeight
+    if (currentLocale == Locale("fa").language || Constants.PERSIAN_REGEX.containsMatchIn(text)
+    ) {
         localFontFamily = IranYekan
         localStyle = LocalTextStyle.current.copy(textDirection = TextDirection.Rtl)
+        localFontWeight = FontWeight.ExtraBold
     }
     Text(
-        text,
-        modifier,
-        color,
-        fontSize,
-        fontStyle,
-        fontWeight,
-        localFontFamily,
-        letterSpacing,
-        textDecoration,
-        textAlign,
-        lineHeight,
-        overflow,
-        softWrap,
-        maxLines,
-        onTextLayout,
-        localStyle
+        text = text,
+        modifier = modifier,
+        color = color,
+        fontSize = fontSize,
+        fontStyle = fontStyle,
+        fontWeight = localFontWeight,
+        fontFamily = localFontFamily,
+        letterSpacing = letterSpacing,
+        textDecoration = textDecoration,
+        textAlign = textAlign,
+        lineHeight = lineHeight,
+        overflow = overflow,
+        softWrap = softWrap,
+        maxLines = maxLines,
+        onTextLayout = onTextLayout,
+        style = localStyle
     )
 }

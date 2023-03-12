@@ -100,6 +100,7 @@ fun ChatContent(
         bottomBar = {
             BottomAppBar {
                 TextField(
+                    enabled = state.isInputAllowed,
                     singleLine = false,
                     label = { PersianText(text = stringResource(R.string.chat_input)) },
                     value = state.chatInput.value,
@@ -109,7 +110,7 @@ fun ChatContent(
                         .padding(16.dp, 0.dp, 16.dp, 0.dp)
                         .combinedClickable(
                             onClick = {},
-                            onDoubleClick = { }
+                            onDoubleClick = {}
                         ),
                     leadingIcon = {
                         IconButton(
