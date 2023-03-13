@@ -3,6 +3,8 @@ package io.github.aryantech.androidchatgpt.web
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.time.Duration
+import java.util.concurrent.TimeUnit
 
 object Web {
 
@@ -23,6 +25,9 @@ object Web {
 
     private fun createOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
+            .connectTimeout(60L, TimeUnit.SECONDS)
+            .readTimeout(60L, TimeUnit.SECONDS)
+            .writeTimeout(60L, TimeUnit.SECONDS)
             .addInterceptor {
                 it.proceed(
                     it.request()

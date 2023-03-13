@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -34,6 +35,7 @@ import io.github.aryantech.androidchatgpt.ui.composables.InternetAwareComposable
 import io.github.aryantech.androidchatgpt.ui.composables.MySnackbar
 import io.github.aryantech.androidchatgpt.ui.composables.PersianText
 import io.github.aryantech.androidchatgpt.ui.composables.ScaffoldWithTitle
+import io.github.aryantech.androidchatgpt.util.log
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -107,7 +109,7 @@ fun ChatContent(
                         owner = ChatBubbleOwner.of(it.role)
                     )
                 }
-                if (state.isWaitingForResponse) {
+                if (state.isWaitingForResponse.value) {
                     item {
                         ChatBubble(
                             owner = ChatBubbleOwner.Ai,
@@ -123,51 +125,44 @@ fun ChatContent(
             }
         },
         bottomBar = {
-            BottomAppBar {
-                TextField(
-                    enabled = state.isInputAllowed,
-                    singleLine = false,
-                    label = { PersianText(text = stringResource(R.string.chat_input)) },
-                    value = state.chatInput.value,
-                    onValueChange = { state.chatInput.value = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp, 0.dp, 16.dp, 0.dp)
-                        .combinedClickable(
-                            onClick = {},
-                            onDoubleClick = {}
-                        ),
-                    leadingIcon = {
-                        IconButton(
-                            onClick = { state.chatInput.value = "" },
-                            content = {
-                                Icon(
-                                    imageVector = Icons.TwoTone.Clear,
-                                    contentDescription = stringResource(R.string.delete)
-                                )
-                            }
-                        )
-                    },
-                    trailingIcon = {
-                        IconButton(
-                            enabled = state.chatInput.value.isNotBlank(),
-                            onClick = { state.newChatInput(state.chatInput.value) },
-                            content = {
-                                Icon(
-                                    imageVector = Icons.TwoTone.Send,
-                                    contentDescription = stringResource(R.string.send)
-                                )
-                            }
-                        )
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = if (state.chatInput.value.isNotBlank()) ImeAction.Send else ImeAction.None,
-                        keyboardType = KeyboardType.Text,
-                        capitalization = KeyboardCapitalization.Sentences
-                    ),
-                    keyboardActions = KeyboardActions(onSend = { state.newChatInput(state.chatInput.value) }),
-                )
-            }
+            TextField(
+                enabled = state.isInputAllowed,
+                label = { PersianText(text = stringResource(R.string.chat_input)) },
+                value = state.chatInput.value,
+                onValueChange = { state.chatInput.value = it },
+                minLines = 2,
+                maxLines = 5,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardActions = KeyboardActions(onSend = { state.newChatInput(state.chatInput.value) }),
+                keyboardOptions = KeyboardOptions(
+                    imeAction = if (state.chatInput.value.isNotBlank()) ImeAction.Send else ImeAction.None,
+                    keyboardType = KeyboardType.Text,
+                    capitalization = KeyboardCapitalization.Sentences
+                ),
+                leadingIcon = {
+                    IconButton(
+                        onClick = { state.chatInput.value = "" },
+                        content = {
+                            Icon(
+                                imageVector = Icons.TwoTone.Clear,
+                                contentDescription = stringResource(R.string.delete)
+                            )
+                        }
+                    )
+                },
+                trailingIcon = {
+                    IconButton(
+                        enabled = state.chatInput.value.isNotBlank(),
+                        onClick = { state.newChatInput(state.chatInput.value) },
+                        content = {
+                            Icon(
+                                imageVector = Icons.TwoTone.Send,
+                                contentDescription = stringResource(R.string.send)
+                            )
+                        }
+                    )
+                },
+            )
         }
     )
 }

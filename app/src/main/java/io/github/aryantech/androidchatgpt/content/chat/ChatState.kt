@@ -32,9 +32,10 @@ class ChatState(
     val chat: MutableState<List<Chat>>,
     val model: MutableState<String>,
     val isOnline: MutableState<Boolean>,
+    val isWaitingForResponse: MutableState<Boolean>,
     context: Context,
     private val focusManager: FocusManager,
-    val scope: LifecycleCoroutineScope
+    private val scope: LifecycleCoroutineScope
 ) {
     private val retrofit = Web.getRetrofit()
 
@@ -42,8 +43,6 @@ class ChatState(
 
     private val isModelSupported: Boolean
         get() = model.value in Constants.CHAT_MODELS
-
-    var isWaitingForResponse = false
 
     var isInputAllowed = true
 
@@ -71,7 +70,7 @@ class ChatState(
         chat.value = chat.value + Chat(role = "user", content = chatInput)
 
         scope.launch {
-            isWaitingForResponse = true
+            isWaitingForResponse.value = true
             isInputAllowed = false
             val output = try {
                 retrofit.apiOf<APIs.ChatCompletionsAPIs>().createChatCompletions(
@@ -84,7 +83,7 @@ class ChatState(
                 handleError(e)
                 null
             }
-            isWaitingForResponse = false
+            isWaitingForResponse.value = false
             isInputAllowed = true
             if (output != null)
                 updateChat(output.choices.first().message)
@@ -115,9 +114,10 @@ fun rememberChatState(
     chat: MutableState<List<Chat>> = remember { mutableStateOf(listOf()) },
     model: MutableState<String> = rememberSaveable { mutableStateOf(Constants.DEFAULT_API_MODEL) },
     isOnline: MutableState<Boolean> = rememberSaveable { mutableStateOf(true) },
+    isWaitingForResponse: MutableState<Boolean> = rememberSaveable { mutableStateOf(false) },
     context: Context = LocalContext.current,
     focusManager: FocusManager = LocalFocusManager.current,
     scope: LifecycleCoroutineScope = LocalLifecycleOwner.current.lifecycleScope
-) = remember(chatInput, chat, model, isOnline, context, focusManager, scope) {
-    ChatState(chatInput, chat, model, isOnline, context, focusManager, scope)
+) = remember(chatInput, chat, model, isOnline, isWaitingForResponse, context, focusManager, scope) {
+    ChatState(chatInput, chat, model, isOnline, isWaitingForResponse, context, focusManager, scope)
 }
