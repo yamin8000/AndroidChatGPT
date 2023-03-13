@@ -1,5 +1,6 @@
 package io.github.aryantech.androidchatgpt.content.chat
 
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -9,7 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -21,8 +21,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -35,7 +38,6 @@ import io.github.aryantech.androidchatgpt.ui.composables.InternetAwareComposable
 import io.github.aryantech.androidchatgpt.ui.composables.MySnackbar
 import io.github.aryantech.androidchatgpt.ui.composables.PersianText
 import io.github.aryantech.androidchatgpt.ui.composables.ScaffoldWithTitle
-import io.github.aryantech.androidchatgpt.util.log
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -125,43 +127,58 @@ fun ChatContent(
             }
         },
         bottomBar = {
-            TextField(
-                enabled = state.isInputAllowed,
-                label = { PersianText(text = stringResource(R.string.chat_input)) },
-                value = state.chatInput.value,
-                onValueChange = { state.chatInput.value = it },
-                minLines = 2,
-                maxLines = 5,
-                modifier = Modifier.fillMaxWidth(),
-                keyboardActions = KeyboardActions(onSend = { state.newChatInput(state.chatInput.value) }),
-                keyboardOptions = KeyboardOptions(
-                    imeAction = if (state.chatInput.value.isNotBlank()) ImeAction.Send else ImeAction.None,
-                    keyboardType = KeyboardType.Text,
-                    capitalization = KeyboardCapitalization.Sentences
-                ),
-                leadingIcon = {
-                    IconButton(
-                        onClick = { state.chatInput.value = "" },
-                        content = {
-                            Icon(
-                                imageVector = Icons.TwoTone.Clear,
-                                contentDescription = stringResource(R.string.delete)
-                            )
-                        }
+            UserInput(
+                isInputAllowed = state.isInputAllowed,
+                chatInput = state.chatInput.value,
+                onChatInputChange = { state.chatInput.value = it },
+                onNewChatInputSubmit = { state.newChatInput(state.chatInput.value) }
+            )
+        }
+    )
+}
+
+@Composable
+private fun UserInput(
+    isInputAllowed: Boolean,
+    chatInput: String,
+    onChatInputChange: (String) -> Unit,
+    onNewChatInputSubmit: () -> Unit
+) {
+    TextField(
+        enabled = isInputAllowed,
+        label = { PersianText(text = stringResource(R.string.chat_input)) },
+        value = chatInput,
+        onValueChange = { onChatInputChange(it) },
+        minLines = 2,
+        maxLines = 5,
+        modifier = Modifier.fillMaxWidth(),
+        keyboardActions = KeyboardActions(onSend = { onNewChatInputSubmit() }),
+        keyboardOptions = KeyboardOptions(
+            imeAction = if (chatInput.isNotBlank()) ImeAction.Send else ImeAction.None,
+            keyboardType = KeyboardType.Text,
+            capitalization = KeyboardCapitalization.Sentences
+        ),
+        leadingIcon = {
+            IconButton(
+                onClick = { onChatInputChange("") },
+                content = {
+                    Icon(
+                        imageVector = Icons.TwoTone.Clear,
+                        contentDescription = stringResource(R.string.delete)
                     )
-                },
-                trailingIcon = {
-                    IconButton(
-                        enabled = state.chatInput.value.isNotBlank(),
-                        onClick = { state.newChatInput(state.chatInput.value) },
-                        content = {
-                            Icon(
-                                imageVector = Icons.TwoTone.Send,
-                                contentDescription = stringResource(R.string.send)
-                            )
-                        }
+                }
+            )
+        },
+        trailingIcon = {
+            IconButton(
+                enabled = chatInput.isNotBlank(),
+                onClick = onNewChatInputSubmit,
+                content = {
+                    Icon(
+                        imageVector = Icons.TwoTone.Send,
+                        contentDescription = stringResource(R.string.send)
                     )
-                },
+                }
             )
         }
     )
@@ -174,9 +191,21 @@ fun ChatBubble(
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 
+    val haptic = LocalHapticFeedback.current
+    val textCopied = stringResource(R.string.text_copied)
+    val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
+
     ChatBubble(
         owner = owner,
         onClick = { isExpanded = !isExpanded },
+        onLongClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            clipboardManager.setText(AnnotatedString(content))
+            Toast
+                .makeText(context, textCopied, Toast.LENGTH_SHORT)
+                .show()
+        },
         content = {
             PersianText(
                 modifier = Modifier.padding(8.dp),
@@ -188,11 +217,13 @@ fun ChatBubble(
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChatBubble(
     content: @Composable (ColumnScope.() -> Unit),
     owner: ChatBubbleOwner,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    onLongClick: () -> Unit = {}
 ) {
     val container = if (owner == ChatBubbleOwner.User) {
         MaterialTheme.colorScheme.secondaryContainer
@@ -227,7 +258,10 @@ fun ChatBubble(
             modifier = Modifier
                 .padding(4.dp)
                 .clip(shape)
-                .clickable { onClick() }
+                .combinedClickable(
+                    onClick = onClick,
+                    onLongClick = onLongClick
+                )
         )
     }
 }
