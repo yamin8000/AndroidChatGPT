@@ -33,9 +33,9 @@ class ChatState(
     val model: MutableState<String>,
     val isOnline: MutableState<Boolean>,
     val isWaitingForResponse: MutableState<Boolean>,
-    context: Context,
+    private val context: Context,
     private val focusManager: FocusManager,
-    private val scope: LifecycleCoroutineScope
+    val scope: LifecycleCoroutineScope
 ) {
     private val retrofit = Web.getRetrofit()
 
@@ -105,6 +105,13 @@ class ChatState(
     private fun resetInput() {
         this.chatInput.value = ""
         focusManager.clearFocus()
+    }
+
+    suspend fun saveToHistory() {
+        val title = buildString {
+            append(chat.value.first().content.take(10))
+            append("...")
+        }
     }
 }
 
