@@ -14,7 +14,6 @@ import io.github.aryantech.androidchatgpt.content.ThemeSetting
 import io.github.aryantech.androidchatgpt.content.settingsDataStore
 import io.github.aryantech.androidchatgpt.util.Constants
 import io.github.aryantech.androidchatgpt.util.DataStoreHelper
-import io.github.aryantech.androidchatgpt.util.log
 import io.github.aryantech.androidchatgpt.web.APIs
 import io.github.aryantech.androidchatgpt.web.Web
 import io.github.aryantech.androidchatgpt.web.Web.apiOf
@@ -37,11 +36,9 @@ class SettingsState(
             apiModel.value = settings.getString(Constants.API_MODEL) ?: Constants.DEFAULT_API_MODEL
             apiModels.value = settings.getStringSet(Constants.API_MODELS)?.toList() ?: listOf()
             if (apiModels.value.isEmpty()) {
-                "it's empty".log()
                 apiModels.value = getModelsFromApi()
                 updateApiModels(apiModels.value)
-                apiModels.value.toString().log()
-            } else "well well well!".log()
+            }
         }
     }
 

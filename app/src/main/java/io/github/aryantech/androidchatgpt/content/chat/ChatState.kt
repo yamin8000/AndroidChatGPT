@@ -111,7 +111,7 @@ class ChatState(
 @Composable
 fun rememberChatState(
     chatInput: MutableState<String> = rememberSaveable { mutableStateOf("") },
-    chat: MutableState<List<Chat>> = remember { mutableStateOf(listOf()) },
+    chat: MutableState<List<Chat>> = rememberSaveable { mutableStateOf(listOf()) },
     model: MutableState<String> = rememberSaveable { mutableStateOf(Constants.DEFAULT_API_MODEL) },
     isOnline: MutableState<Boolean> = rememberSaveable { mutableStateOf(true) },
     isWaitingForResponse: MutableState<Boolean> = rememberSaveable { mutableStateOf(false) },
