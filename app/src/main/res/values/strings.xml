@@ -19,4 +19,6 @@
     <string name="text_copied">Text copied.</string>
     <string name="language">Language</string>
     <string name="history">History</string>
+    <string name="title">Title</string>
+    <string name="date">Date</string>
 </resources>

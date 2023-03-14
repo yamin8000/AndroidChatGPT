@@ -1,9 +1,9 @@
 package io.github.aryantech.androidchatgpt.content.chat
 
 enum class ChatBubbleOwner {
-    User, Ai;
+    User, Assistant;
 
     companion object {
-        fun of(value: String) = if (value == "user") User else Ai
+        fun of(value: String) = if (value.lowercase() == "user") User else Assistant
     }
 }

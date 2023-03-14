@@ -48,7 +48,13 @@ class ChatState(
     private val isModelSupported: Boolean
         get() = model.value in Constants.CHAT_MODELS
 
+    var isSaveable = true
+
+    var isUpdatable = false
+
     var isInputAllowed = true
+
+    var isHistoryLoaded = false
 
     val snackbarHost = SnackbarHostState()
 
@@ -56,7 +62,7 @@ class ChatState(
         scope.launch {
             model.value = context.settingsDataStore.data.map {
                 it[stringPreferencesKey(Constants.API_MODEL)]
-            }.firstOrNull() ?: Constants.API_MODEL
+            }.firstOrNull() ?: Constants.DEFAULT_API_MODEL
         }
     }
 
@@ -111,25 +117,52 @@ class ChatState(
         focusManager.clearFocus()
     }
 
-    suspend fun saveToHistory() {
-        val title = buildString {
-            append(chat.value.first().content.take(10))
-            append("...")
+    suspend fun handleHistory() {
+        if (chat.value.isNotEmpty()) {
+            if (isSaveable) saveToHistory()
+            if (isUpdatable) updateHistory()
         }
+    }
 
-        val history = HistoryEntity(
-            title = title,
-            date = DateTimeUtils.zonedNow()
-        )
+    private fun updateHistory() {
 
+    }
+
+    private suspend fun saveToHistory() {
+        val title = createHistoryTitle()
+        val history = HistoryEntity(title = title, date = DateTimeUtils.zonedNow())
         val id = db.historyDao().insert(history)
-        chat.value.forEach { chatItem ->
-            val item = HistoryItemEntity(
-                content = chatItem.content,
-                owner = ChatBubbleOwner.of(chatItem.role),
-                historyId = id
-            )
-            db.historyItemDao().insert(item)
+        chat.value.forEach { chatItem -> addItemToHistory(chatItem, id) }
+    }
+
+    private suspend fun addItemToHistory(
+        chatItem: Chat,
+        id: Long
+    ) {
+        val item = HistoryItemEntity(
+            content = chatItem.content,
+            owner = ChatBubbleOwner.of(chatItem.role),
+            historyId = id
+        )
+        db.historyItemDao().insert(item)
+    }
+
+    private fun createHistoryTitle() = buildString {
+        append(chat.value.first().content.take(30))
+        append("...")
+    }
+
+    suspend fun loadFromHistory(
+        historyId: Long
+    ) {
+        isSaveable = false
+        isUpdatable = true
+
+        if (!isHistoryLoaded) {
+            chat.value = db.historyItemDao()
+                .getByParam("historyId", historyId)
+                .map { Chat(it.owner.toString().lowercase(), it.content) }
+            isHistoryLoaded = true
         }
     }
 }

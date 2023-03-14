@@ -1,6 +1,7 @@
 package io.github.aryantech.androidchatgpt.content.chat
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -42,6 +43,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatContent(
+    historyId: String?,
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
@@ -60,11 +62,23 @@ fun ChatContent(
 
     InternetAwareComposable { state.isOnline.value = it }
 
+    BackHandler {
+        state.scope.launch {
+            state.handleHistory()
+            onBackClick()
+        }
+    }
+
+    historyId?.let {
+        if (it.toLong() != -1L)
+            state.scope.launch { state.loadFromHistory(it.toLong()) }
+    }
+
     ScaffoldWithTitle(
         title = stringResource(R.string.new_chat) + " ${state.model.value}",
         onBackClick = {
             state.scope.launch {
-                state.saveToHistory()
+                state.handleHistory()
                 onBackClick()
             }
         },
@@ -119,7 +133,7 @@ fun ChatContent(
                 if (state.isWaitingForResponse.value) {
                     item {
                         ChatBubble(
-                            owner = ChatBubbleOwner.Ai,
+                            owner = ChatBubbleOwner.Assistant,
                             content = {
                                 Box(
                                     modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),

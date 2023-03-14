@@ -1,6 +1,6 @@
 package io.github.aryantech.androidchatgpt.ui.theme
 
-import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
 
-val DefaultCutShape = CutCornerShape(15.dp)
+val DefaultShape = RoundedCornerShape(16.dp)

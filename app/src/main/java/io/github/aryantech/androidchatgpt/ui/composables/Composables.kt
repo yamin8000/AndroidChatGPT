@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.aryantech.androidchatgpt.R
-import io.github.aryantech.androidchatgpt.ui.theme.DefaultCutShape
+import io.github.aryantech.androidchatgpt.ui.theme.DefaultShape
 import io.github.aryantech.androidchatgpt.ui.theme.IranYekan
 import io.github.aryantech.androidchatgpt.util.Constants
 import io.github.aryantech.androidchatgpt.util.Constants.DNS_SERVERS
@@ -180,7 +180,7 @@ fun SettingsItemCard(
         )
         Card(
             modifier = modifier,
-            shape = DefaultCutShape
+            shape = DefaultShape
         ) {
             Column(
                 modifier = columnModifier.padding(16.dp),

@@ -11,6 +11,6 @@ object Nav {
     }
 
     object Args {
-
+        const val historyId = "historyId"
     }
 }
