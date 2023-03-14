@@ -62,7 +62,12 @@ fun ChatContent(
 
     ScaffoldWithTitle(
         title = stringResource(R.string.new_chat) + " ${state.model.value}",
-        onBackClick = onBackClick,
+        onBackClick = {
+            state.scope.launch {
+                state.saveToHistory()
+                onBackClick()
+            }
+        },
         snackbarHost = {
             SnackbarHost(state.snackbarHost) { data ->
                 MySnackbar {
@@ -76,12 +81,7 @@ fun ChatContent(
         },
         actions = {
             IconButton(
-                onClick = {
-                    state.scope.launch {
-                        state.saveToHistory()
-                        onSettingsClick()
-                    }
-                },
+                onClick = onSettingsClick,
                 content = {
                     Icon(
                         imageVector = Icons.TwoTone.Settings,

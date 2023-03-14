@@ -19,4 +19,5 @@
     <string name="no_internet_connection">ارتباط با اینترنت برقرار نیست.</string>
     <string name="text_copied">متن کپی شد.</string>
     <string name="language">زبان</string>
+    <string name="history">سابقه</string>
 </resources>

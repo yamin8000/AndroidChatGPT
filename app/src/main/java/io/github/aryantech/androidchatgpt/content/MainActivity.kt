@@ -14,12 +14,16 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.room.Room
 import io.github.aryantech.androidchatgpt.content.chat.ChatContent
 import io.github.aryantech.androidchatgpt.content.home.HomeContent
 import io.github.aryantech.androidchatgpt.content.settings.SettingsContent
+import io.github.aryantech.androidchatgpt.db.AppDatabase
 import io.github.aryantech.androidchatgpt.ui.Nav
 import io.github.aryantech.androidchatgpt.ui.theme.AppTheme
 import io.github.aryantech.androidchatgpt.util.Constants
+import io.github.aryantech.androidchatgpt.util.Constants.db
+import io.github.aryantech.androidchatgpt.util.Constants.isDbInitialized
 import io.github.aryantech.androidchatgpt.util.DataStoreHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +40,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         scope.launch {
+            db = createDb()
             val theme = getCurrentTheme()
             setContent { Scaffold { MainContent(theme) } }
         }
@@ -44,6 +49,16 @@ class MainActivity : ComponentActivity() {
     private suspend fun getCurrentTheme() = ThemeSetting.valueOf(
         DataStoreHelper(settingsDataStore).getString(Constants.THEME) ?: ThemeSetting.System.name
     )
+
+    private fun createDb(): AppDatabase {
+        return if (!isDbInitialized())
+            Room.databaseBuilder(
+                this,
+                AppDatabase::class.java,
+                "db"
+            ).build()
+        else db
+    }
 }
 
 @Composable
@@ -63,8 +78,9 @@ fun MainContent(
         ) {
             composable(Nav.Routes.home) {
                 HomeContent(
-                    onSettingsClick = { navController.navigate(Nav.Routes.settings) },
-                    onNewChat = { navController.navigate(Nav.Routes.chat) }
+                    onSettingsIconClick = { navController.navigate(Nav.Routes.settings) },
+                    onNewChat = { navController.navigate(Nav.Routes.chat) },
+                    onNavigateToHistory = { navController.navigate(Nav.Routes.history) }
                 )
             }
 

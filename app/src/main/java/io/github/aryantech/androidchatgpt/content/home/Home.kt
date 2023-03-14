@@ -14,8 +14,9 @@ import okhttp3.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeContent(
-    onSettingsClick: () -> Unit,
-    onNewChat: () -> Unit
+    onSettingsIconClick: () -> Unit,
+    onNewChat: () -> Unit,
+    onNavigateToHistory: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
@@ -24,7 +25,7 @@ fun HomeContent(
         topBar = {
             MainTopAppBar(
                 scrollBehavior = scrollBehavior,
-                onSettingsClick = onSettingsClick
+                onSettingsClick = onSettingsIconClick
             )
         },
         content = { paddingValues ->
@@ -37,6 +38,10 @@ fun HomeContent(
                     Button(
                         onClick = onNewChat,
                         content = { PersianText(stringResource(R.string.new_chat)) }
+                    )
+                    Button(
+                        onClick = onNavigateToHistory,
+                        content = { PersianText(stringResource(R.string.history)) }
                     )
                 }
             }

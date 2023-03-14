@@ -1,6 +1,11 @@
 package io.github.aryantech.androidchatgpt.util
 
+import io.github.aryantech.androidchatgpt.db.AppDatabase
+
 object Constants {
+    lateinit var db: AppDatabase
+    fun isDbInitialized() = ::db.isInitialized
+
     const val LOG_TAG = "<==>"
     const val THEME = "theme"
 

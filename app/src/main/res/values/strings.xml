@@ -18,4 +18,5 @@
     <string name="no_internet_connection">There\'s no internet connection.</string>
     <string name="text_copied">Text copied.</string>
     <string name="language">Language</string>
+    <string name="history">History</string>
 </resources>

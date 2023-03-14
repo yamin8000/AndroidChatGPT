@@ -16,9 +16,13 @@ import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.lifecycleScope
 import io.github.aryantech.androidchatgpt.R
 import io.github.aryantech.androidchatgpt.content.settingsDataStore
+import io.github.aryantech.androidchatgpt.db.entity.HistoryEntity
+import io.github.aryantech.androidchatgpt.db.entity.HistoryItemEntity
 import io.github.aryantech.androidchatgpt.model.Chat
 import io.github.aryantech.androidchatgpt.model.request.CreateChatCompletion
 import io.github.aryantech.androidchatgpt.util.Constants
+import io.github.aryantech.androidchatgpt.util.Constants.db
+import io.github.aryantech.androidchatgpt.util.DateTimeUtils
 import io.github.aryantech.androidchatgpt.util.log
 import io.github.aryantech.androidchatgpt.web.APIs
 import io.github.aryantech.androidchatgpt.web.Web
@@ -111,6 +115,21 @@ class ChatState(
         val title = buildString {
             append(chat.value.first().content.take(10))
             append("...")
+        }
+
+        val history = HistoryEntity(
+            title = title,
+            date = DateTimeUtils.zonedNow()
+        )
+
+        val id = db.historyDao().insert(history)
+        chat.value.forEach { chatItem ->
+            val item = HistoryItemEntity(
+                content = chatItem.content,
+                owner = ChatBubbleOwner.of(chatItem.role),
+                historyId = id
+            )
+            db.historyItemDao().insert(item)
         }
     }
 }
