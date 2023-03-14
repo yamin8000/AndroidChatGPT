@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AndroidChatGPT</string>
+    <string name="theme">زمینه</string>
+    <string name="theme_system">سیستم</string>
+    <string name="theme_light">روشن</string>
+    <string name="theme_dark">تاریک</string>
+    <string name="settings">تنظیمات</string>
+    <string name="back">بازگشت</string>
+    <string name="dynamic_theme_notice">در نسخه های اندروید 12 به بعد زمینه برنامه بر اساس رنگ قالب تصویر پس زمینه گوشی شما تعیین می شود</string>
+    <string name="apiModel">مجموعه داده</string>
+    <string name="chat_input">گفتگو</string>
+    <string name="delete">پاک کردن</string>
+    <string name="send">ارسال</string>
+    <string name="new_chat">گفتگوی جدید</string>
+    <string name="model_not_supported">این مجموعه داده پشتیبانی نمی شود.</string>
+    <string name="suggested_model_for_chat">بهتر است این مجموعه داده ها انتخاب شود:</string>
+    <string name="change_it_to_default">تغییر به پیشفرض</string>
+    <string name="no_internet_connection">ارتباط با اینترنت برقرار نیست.</string>
+    <string name="text_copied">متن کپی شد.</string>
+    <string name="language">زبان</string>
+</resources>

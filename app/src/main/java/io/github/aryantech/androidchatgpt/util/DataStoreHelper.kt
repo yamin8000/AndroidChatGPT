@@ -22,6 +22,11 @@ class DataStoreHelper(
     ) = datastore.data.map { it[stringSetPreferencesKey(key)] }.firstOrNull()
 
     suspend fun getString(
+        key: String,
+        default: String
+    ) = getString(key) ?: default
+
+    suspend fun getString(
         key: String
     ) = datastore.data.map { it[stringPreferencesKey(key)] }.firstOrNull()
 

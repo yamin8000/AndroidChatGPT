@@ -17,4 +17,5 @@
     <string name="change_it_to_default">Change to default</string>
     <string name="no_internet_connection">There\'s no internet connection.</string>
     <string name="text_copied">Text copied.</string>
+    <string name="language">Language</string>
 </resources>
