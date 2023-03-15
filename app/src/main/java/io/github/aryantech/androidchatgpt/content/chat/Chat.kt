@@ -47,7 +47,7 @@ fun ChatContent(
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
-    val state = rememberChatState()
+    val state = rememberChatState(historyId = remember { mutableStateOf(historyId) })
 
     val listState = rememberLazyListState()
 
@@ -64,21 +64,16 @@ fun ChatContent(
 
     BackHandler {
         state.scope.launch {
-            state.handleHistory()
+            state.handleHistorySaving()
             onBackClick()
         }
-    }
-
-    historyId?.let {
-        if (it.toLong() != -1L)
-            state.scope.launch { state.loadFromHistory(it.toLong()) }
     }
 
     ScaffoldWithTitle(
         title = stringResource(R.string.new_chat) + " ${state.model.value}",
         onBackClick = {
             state.scope.launch {
-                state.handleHistory()
+                state.handleHistorySaving()
                 onBackClick()
             }
         },

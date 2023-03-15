@@ -37,6 +37,7 @@ class ChatState(
     val model: MutableState<String>,
     val isOnline: MutableState<Boolean>,
     val isWaitingForResponse: MutableState<Boolean>,
+    private val historyId: MutableState<String?>,
     private val context: Context,
     private val focusManager: FocusManager,
     val scope: LifecycleCoroutineScope
@@ -48,13 +49,11 @@ class ChatState(
     private val isModelSupported: Boolean
         get() = model.value in Constants.CHAT_MODELS
 
-    var isSaveable = true
+    private var isSaveable = true
 
-    var isUpdatable = false
+    private var isUpdatable = false
 
     var isInputAllowed = true
-
-    var isHistoryLoaded = false
 
     val snackbarHost = SnackbarHostState()
 
@@ -63,7 +62,16 @@ class ChatState(
             model.value = context.settingsDataStore.data.map {
                 it[stringPreferencesKey(Constants.API_MODEL)]
             }.firstOrNull() ?: Constants.DEFAULT_API_MODEL
+
+            if (historyId.value != null && historyId.value?.toLong() != -1L)
+                handleHistoryLoading()
         }
+    }
+
+    private suspend fun handleHistoryLoading() {
+        isSaveable = false
+        isUpdatable = true
+        historyId.value?.let { chat.value = loadFromHistory(it.toLong()) }
     }
 
     fun newChatInput(
@@ -117,7 +125,7 @@ class ChatState(
         focusManager.clearFocus()
     }
 
-    suspend fun handleHistory() {
+    suspend fun handleHistorySaving() {
         if (chat.value.isNotEmpty()) {
             if (isSaveable) saveToHistory()
             if (isUpdatable) updateHistory()
@@ -152,19 +160,11 @@ class ChatState(
         append("...")
     }
 
-    suspend fun loadFromHistory(
+    private suspend fun loadFromHistory(
         historyId: Long
-    ) {
-        isSaveable = false
-        isUpdatable = true
-
-        if (!isHistoryLoaded) {
-            chat.value = db.historyItemDao()
-                .getByParam("historyId", historyId)
-                .map { Chat(it.owner.toString().lowercase(), it.content) }
-            isHistoryLoaded = true
-        }
-    }
+    ) = db.historyItemDao()
+        .getByParam("historyId", historyId)
+        .map { Chat(it.owner.toString().lowercase(), it.content) }
 }
 
 @Composable
@@ -174,9 +174,30 @@ fun rememberChatState(
     model: MutableState<String> = rememberSaveable { mutableStateOf(Constants.DEFAULT_API_MODEL) },
     isOnline: MutableState<Boolean> = rememberSaveable { mutableStateOf(true) },
     isWaitingForResponse: MutableState<Boolean> = rememberSaveable { mutableStateOf(false) },
+    historyId: MutableState<String?> = rememberSaveable { mutableStateOf(null) },
     context: Context = LocalContext.current,
     focusManager: FocusManager = LocalFocusManager.current,
     scope: LifecycleCoroutineScope = LocalLifecycleOwner.current.lifecycleScope
-) = remember(chatInput, chat, model, isOnline, isWaitingForResponse, context, focusManager, scope) {
-    ChatState(chatInput, chat, model, isOnline, isWaitingForResponse, context, focusManager, scope)
+) = remember(
+    chatInput,
+    chat,
+    model,
+    isOnline,
+    isWaitingForResponse,
+    historyId,
+    context,
+    focusManager,
+    scope
+) {
+    ChatState(
+        chatInput,
+        chat,
+        model,
+        isOnline,
+        isWaitingForResponse,
+        historyId,
+        context,
+        focusManager,
+        scope
+    )
 }
