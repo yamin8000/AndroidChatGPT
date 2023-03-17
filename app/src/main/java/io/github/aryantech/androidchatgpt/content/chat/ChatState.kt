@@ -85,7 +85,7 @@ class ChatState(
         chatInput: String
     ) {
         resetInput()
-        chat.value = chat.value + Chat(role = "user", content = chatInput)
+        chat.value = chat.value + Chat(role = "user", content = chatInput.trim())
 
         scope.launch {
             isWaitingForResponse.value = true

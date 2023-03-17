@@ -30,7 +30,7 @@ class HistoryState(
         newTitle: String
     ) = scope.launch {
         crudAction(id) { item, dao ->
-            scope.launch { dao.update(item.copy(title = newTitle)) }
+            scope.launch { dao.update(item.copy(title = newTitle.trim())) }
         }
     }
 
