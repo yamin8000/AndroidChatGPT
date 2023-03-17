@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AndroidChatGPT</string>
     <string name="theme">زمینه</string>
     <string name="theme_system">سیستم</string>
     <string name="theme_light">روشن</string>
@@ -20,4 +19,13 @@
     <string name="text_copied">متن کپی شد.</string>
     <string name="language">زبان</string>
     <string name="history">سابقه</string>
+    <string name="title">عنوان</string>
+    <string name="date">تاریخ</string>
+    <string name="edit">ویرایش</string>
+    <string name="delete">پاک کردن</string>
+    <string name="yes">بله</string>
+    <string name="no">خیر</string>
+    <string name="delete_confirm">آیا واقعا قصد پاک کردن این مورد را دارید؟</string>
+    <string name="confirm">تایید</string>
+    <string name="cancel">لغو</string>
 </resources>
