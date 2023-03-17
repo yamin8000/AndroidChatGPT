@@ -83,6 +83,10 @@ fun ApiModelSetting(
                 PersianText(apiModel)
             }
         )
+        Button(
+            onClick = { onApiModelChange(Constants.CHAT_MODELS.first()) },
+            content = { PersianText(stringResource(R.string.change_it_to_default)) }
+        )
         if (apiModel !in Constants.CHAT_MODELS) {
             PersianText(
                 modifier = Modifier.fillMaxWidth(),
@@ -94,10 +98,6 @@ fun ApiModelSetting(
                     }
                     trim()
                 }
-            )
-            Button(
-                onClick = { onApiModelChange(Constants.CHAT_MODELS.first()) },
-                content = { PersianText(stringResource(R.string.change_it_to_default)) }
             )
         }
     }
