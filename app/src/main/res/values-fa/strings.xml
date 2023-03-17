@@ -28,4 +28,5 @@
     <string name="delete_confirm">آیا واقعا قصد پاک کردن این مورد را دارید؟</string>
     <string name="confirm">تایید</string>
     <string name="cancel">لغو</string>
+    <string name="history_title">عنوان سابقه</string>
 </resources>

@@ -136,7 +136,7 @@ fun HistoryItem(
     }
 
     if (isEditing) {
-        EditModal(
+        EditDialog(
             title = title,
             onDismiss = { isEditing = false },
             onCancel = { isEditing = false },
@@ -232,50 +232,54 @@ fun DeleteConfirmModal(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditModal(
+fun EditDialog(
     title: String,
     onDismiss: () -> Unit,
     onCancel: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
     var newTitle by remember { mutableStateOf(title) }
-    ModalBottomSheet(
+    AlertDialog(
         onDismissRequest = onDismiss,
         content = {
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                content = {
-                    TextField(
-                        value = newTitle,
-                        onValueChange = { newTitle = it }
-                    )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(
-                            16.dp,
-                            Alignment.CenterHorizontally
+            Surface {
+                Column(
+                    modifier = Modifier
+                        .padding(32.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    content = {
+                        TextField(
+                            singleLine = true,
+                            value = newTitle,
+                            onValueChange = { newTitle = it },
+                            placeholder = { PersianText(stringResource(R.string.history_title)) }
                         )
-                    ) {
-                        Button(
-                            content = { PersianText(stringResource(R.string.confirm)) },
-                            onClick = {
-                                onConfirm(newTitle)
-                                onDismiss()
-                            }
-                        )
-                        Button(
-                            content = { PersianText(stringResource(R.string.cancel)) },
-                            onClick = {
-                                onCancel()
-                                onDismiss()
-                            }
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(
+                                16.dp,
+                                Alignment.CenterHorizontally
+                            )
+                        ) {
+                            Button(
+                                content = { PersianText(stringResource(R.string.confirm)) },
+                                onClick = {
+                                    onConfirm(newTitle)
+                                    onDismiss()
+                                }
+                            )
+                            Button(
+                                content = { PersianText(stringResource(R.string.cancel)) },
+                                onClick = {
+                                    onCancel()
+                                    onDismiss()
+                                }
+                            )
+                        }
                     }
-                }
-            )
+                )
+            }
         }
     )
 }
