@@ -70,7 +70,7 @@ fun ChatContent(
     }
 
     ScaffoldWithTitle(
-        title = stringResource(R.string.new_chat) + " ${state.model.value}",
+        title = stringResource(R.string.new_chat),
         onBackClick = {
             state.scope.launch {
                 state.handleHistorySaving()
