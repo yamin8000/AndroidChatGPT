@@ -9,7 +9,7 @@
     <string name="dynamic_theme_notice">On Android 12+ your app theme colors are based on your home screen background</string>
     <string name="apiModel">Dataset Model</string>
     <string name="chat_input">Chat</string>
-    <string name="delete">Clear</string>
+    <string name="clear">Clear</string>
     <string name="send">Send</string>
     <string name="new_chat">New Chat</string>
     <string name="model_not_supported">Selected model is not supported for current option.</string>
@@ -21,4 +21,11 @@
     <string name="history">History</string>
     <string name="title">Title</string>
     <string name="date">Date</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="delete_confirm">Are you sure you want to delete this item?</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
 </resources>

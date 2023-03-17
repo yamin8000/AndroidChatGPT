@@ -10,7 +10,7 @@
     <string name="dynamic_theme_notice">در نسخه های اندروید 12 به بعد زمینه برنامه بر اساس رنگ قالب تصویر پس زمینه گوشی شما تعیین می شود</string>
     <string name="apiModel">مجموعه داده</string>
     <string name="chat_input">گفتگو</string>
-    <string name="delete">پاک کردن</string>
+    <string name="clear">پاک کردن</string>
     <string name="send">ارسال</string>
     <string name="new_chat">گفتگوی جدید</string>
     <string name="model_not_supported">این مجموعه داده پشتیبانی نمی شود.</string>

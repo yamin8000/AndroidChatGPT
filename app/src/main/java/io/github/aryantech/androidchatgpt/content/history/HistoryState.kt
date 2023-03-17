@@ -7,21 +7,48 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.lifecycleScope
+import io.github.aryantech.androidchatgpt.db.dao.DAOs
 import io.github.aryantech.androidchatgpt.db.entity.HistoryEntity
 import io.github.aryantech.androidchatgpt.util.Constants.db
 import kotlinx.coroutines.launch
 
 class HistoryState(
-    scope: LifecycleCoroutineScope,
+    private val scope: LifecycleCoroutineScope,
     val history: MutableState<List<HistoryEntity>>
 ) {
     init {
-        scope.launch {
-            history.value = getAllHistories()
-        }
+        scope.launch { refreshHistories() }
+    }
+
+    private suspend fun refreshHistories() {
+        history.value = getAllHistories()
     }
 
     private suspend fun getAllHistories() = db.historyDao().getAll()
+    fun edit(
+        id: Long,
+        newTitle: String
+    ) = scope.launch {
+        crudAction(id) { item, dao ->
+            scope.launch { dao.update(item.copy(title = newTitle)) }
+        }
+    }
+
+    fun delete(
+        id: Long
+    ) = scope.launch {
+        crudAction(id) { item, dao -> scope.launch { dao.delete(item) } }
+    }
+
+    private suspend fun crudAction(
+        id: Long,
+        action: (HistoryEntity, DAOs.HistoryDao) -> Unit
+    ) {
+        val dao = db.historyDao()
+        val item = dao.getById(id)
+        if (item != null) action(item, dao)
+        refreshHistories()
+    }
 }
 
 @Composable
