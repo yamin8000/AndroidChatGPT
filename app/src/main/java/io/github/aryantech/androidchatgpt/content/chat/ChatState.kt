@@ -156,8 +156,10 @@ class ChatState(
     }
 
     private fun createHistoryTitle() = buildString {
-        append(chat.value.first().content.take(30))
-        append("...")
+        val first = chat.value.first().content
+        append(first.take(30))
+        if (first.length > 30)
+            append("...")
     }
 
     private suspend fun loadFromHistory(
