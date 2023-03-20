@@ -1,6 +1,9 @@
 package io.github.aryantech.androidchatgpt.content.home
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.twotone.Info
+import androidx.compose.material.icons.twotone.Menu
+import androidx.compose.material.icons.twotone.Navigation
 import androidx.compose.material.icons.twotone.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -12,7 +15,9 @@ import io.github.aryantech.androidchatgpt.R
 @Composable
 fun MainTopAppBar(
     scrollBehavior: TopAppBarScrollBehavior,
-    onSettingsClick: () -> Unit
+    onSettingsClick: () -> Unit,
+    onNavigationClick: () -> Unit,
+    onAboutClick: () -> Unit
 ) {
     val title = stringResource(R.string.app_name)
     Surface(
@@ -21,6 +26,17 @@ fun MainTopAppBar(
         TopAppBar(
             scrollBehavior = scrollBehavior,
             title = { Text(title) },
+            navigationIcon = {
+                IconButton(
+                    onClick = onNavigationClick,
+                    content = {
+                        Icon(
+                            imageVector = Icons.TwoTone.Menu,
+                            contentDescription = null
+                        )
+                    }
+                )
+            },
             actions = {
                 IconButton(
                     onClick = onSettingsClick,
@@ -28,6 +44,15 @@ fun MainTopAppBar(
                         Icon(
                             imageVector = Icons.TwoTone.Settings,
                             contentDescription = stringResource(R.string.settings)
+                        )
+                    }
+                )
+                IconButton(
+                    onClick = onAboutClick,
+                    content = {
+                        Icon(
+                            imageVector = Icons.TwoTone.Info,
+                            contentDescription = stringResource(R.string.about)
                         )
                     }
                 )

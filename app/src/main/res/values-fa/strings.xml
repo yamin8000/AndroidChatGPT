@@ -29,4 +29,7 @@
     <string name="confirm">تایید</string>
     <string name="cancel">لغو</string>
     <string name="history_title">عنوان سابقه</string>
+    <string name="home">خانه</string>
+    <string name="about">درباره</string>
+    <string name="chat_with_me">با من گفتگو کن</string>
 </resources>

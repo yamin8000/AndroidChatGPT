@@ -17,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
+import io.github.aryantech.androidchatgpt.content.about.AboutContent
 import io.github.aryantech.androidchatgpt.content.chat.ChatContent
 import io.github.aryantech.androidchatgpt.content.history.HistoryContent
 import io.github.aryantech.androidchatgpt.content.home.HomeContent
@@ -87,9 +88,10 @@ fun MainContent(
         ) {
             composable(Nav.Routes.home) {
                 HomeContent(
-                    onSettingsIconClick = { navController.navigate(Nav.Routes.settings) },
-                    onNewChat = { navController.navigate("${Nav.Routes.chat}/-1") },
-                    onNavigateToHistory = { navController.navigate(Nav.Routes.history) }
+                    onNavigateToSettings = { navController.navigate(Nav.Routes.settings) },
+                    onNavigateToNewChat = { navController.navigate("${Nav.Routes.chat}/-1") },
+                    onNavigateToHistory = { navController.navigate(Nav.Routes.history) },
+                    onNavigateToAbout = { navController.navigate(Nav.Routes.about) }
                 )
             }
 
@@ -109,7 +111,9 @@ fun MainContent(
             }
 
             composable(Nav.Routes.about) {
-
+                AboutContent(
+                    onBackClick = { navController.popBackStack() }
+                )
             }
 
             composable(Nav.Routes.history) {

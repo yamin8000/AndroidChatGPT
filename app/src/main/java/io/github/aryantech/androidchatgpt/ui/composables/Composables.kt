@@ -36,6 +36,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.airbnb.lottie.Lottie
+import com.airbnb.lottie.compose.*
 import io.github.aryantech.androidchatgpt.R
 import io.github.aryantech.androidchatgpt.ui.theme.DefaultShape
 import io.github.aryantech.androidchatgpt.ui.theme.IranYekan
@@ -46,6 +48,21 @@ import io.github.aryantech.androidchatgpt.util.getCurrentLocale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+
+@Composable
+fun Lottie(
+    resource: Int
+) {
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(resource))
+    val progress by animateLottieCompositionAsState(
+        composition = composition,
+        iterations = LottieConstants.IterateForever
+    )
+    LottieAnimation(
+        composition = composition,
+        progress = { progress }
+    )
+}
 
 @Composable
 fun InternetAwareComposable(

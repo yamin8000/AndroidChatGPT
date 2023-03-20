@@ -16,7 +16,9 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.airbnb.lottie.compose.*
 import io.github.aryantech.androidchatgpt.R
+import io.github.aryantech.androidchatgpt.ui.composables.Lottie
 import io.github.aryantech.androidchatgpt.ui.composables.PersianText
 import io.github.aryantech.androidchatgpt.ui.composables.ScaffoldWithTitle
 import io.github.aryantech.androidchatgpt.util.DateTimeUtils.toIso
@@ -38,20 +40,22 @@ fun HistoryContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 content = {
-                    items(state.history.value) {
-                        HistoryItem(
-                            title = it.title,
-                            date = it.date,
-                            onClick = { onItemClick(it.id) },
-                            onDelete = { state.delete(it.id) },
-                            onEdit = { title ->
-                                state.edit(
-                                    id = it.id,
-                                    newTitle = title
-                                )
-                            }
-                        )
-                    }
+                    if (state.history.value.isNotEmpty()) {
+                        items(state.history.value) {
+                            HistoryItem(
+                                title = it.title,
+                                date = it.date,
+                                onClick = { onItemClick(it.id) },
+                                onDelete = { state.delete(it.id) },
+                                onEdit = { title ->
+                                    state.edit(
+                                        id = it.id,
+                                        newTitle = title
+                                    )
+                                }
+                            )
+                        }
+                    } else item { Lottie(R.raw.empty_list) }
                 }
             )
         }

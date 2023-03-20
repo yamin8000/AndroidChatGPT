@@ -29,4 +29,7 @@
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
     <string name="history_title">History Title</string>
+    <string name="home">Home</string>
+    <string name="about">About</string>
+    <string name="chat_with_me">Chat with me</string>
 </resources>
