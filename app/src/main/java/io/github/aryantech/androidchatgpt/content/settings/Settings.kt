@@ -1,11 +1,13 @@
 package io.github.aryantech.androidchatgpt.content.settings
 
 import android.os.Build
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.Dataset
 import androidx.compose.material.icons.twotone.DisplaySettings
+import androidx.compose.material.icons.twotone.Language
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -20,7 +22,10 @@ import io.github.aryantech.androidchatgpt.R
 import io.github.aryantech.androidchatgpt.content.ThemeSetting
 import io.github.aryantech.androidchatgpt.ui.composables.*
 import io.github.aryantech.androidchatgpt.util.Constants
+import io.github.aryantech.androidchatgpt.util.LanguageUtils.setDefault
+import io.github.aryantech.androidchatgpt.util.LanguageUtils.toList
 import kotlinx.coroutines.launch
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,6 +43,7 @@ fun SettingsContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            item { LanguageSelectionSetting() }
             item {
                 ThemeSetting(state.themeSetting.value) { newTheme ->
                     state.scope.launch { state.updateThemeSetting(newTheme) }
@@ -56,51 +62,35 @@ fun SettingsContent(
 }
 
 @Composable
-fun ApiModelSetting(
-    apiModel: String,
-    apiModels: List<String>,
-    onApiModelChange: (String) -> Unit
-) {
+fun LanguageSelectionSetting() {
+    val language = stringResource(R.string.language)
+    val locales = AppCompatDelegate.getApplicationLocales().toList()
+
     var isShowingDialog by remember { mutableStateOf(false) }
+
     SettingChangerDialog(
         isEnabled = isShowingDialog,
-        title = stringResource(R.string.apiModel),
-        options = apiModels.sorted(),
-        currentSetting = apiModel,
-        onSettingChange = onApiModelChange,
-        onDismiss = { isShowingDialog = false }
+        title = language,
+        options = locales,
+        currentSetting = locales.first(),
+        onDismiss = { isShowingDialog = false },
+        displayProvider = { it.displayLanguage },
+        onSettingChange = { AppCompatDelegate.setApplicationLocales(it.setDefault()) },
+        icon = { Icon(imageVector = Icons.TwoTone.Language, contentDescription = language) }
     )
+
     SettingsItemCard(
-        title = stringResource(R.string.apiModel)
-    ) {
-        SettingsItem(
-            onClick = { isShowingDialog = true },
-            content = {
-                Icon(
-                    imageVector = Icons.TwoTone.Dataset,
-                    contentDescription = stringResource(R.string.apiModel)
-                )
-                PersianText(apiModel)
-            }
-        )
-        Button(
-            onClick = { onApiModelChange(Constants.CHAT_MODELS.first()) },
-            content = { PersianText(stringResource(R.string.change_it_to_default)) }
-        )
-        if (apiModel !in Constants.CHAT_MODELS) {
-            PersianText(
-                modifier = Modifier.fillMaxWidth(),
-                text = buildString {
-                    append(stringResource(R.string.suggested_model_for_chat))
-                    append("\n")
-                    Constants.CHAT_MODELS.forEach {
-                        append("${it}\n")
-                    }
-                    trim()
+        title = language,
+        content = {
+            SettingsItem(
+                onClick = { isShowingDialog = true },
+                content = {
+                    Icon(imageVector = Icons.TwoTone.Language, contentDescription = language)
+                    PersianText(locales.first().displayLanguage)
                 }
             )
         }
-    }
+    )
 }
 
 @Composable
@@ -108,35 +98,86 @@ fun ThemeSetting(
     currentTheme: ThemeSetting,
     onCurrentThemeChange: (ThemeSetting) -> Unit
 ) {
+    val theme = stringResource(R.string.theme)
+
     var isShowingThemeDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     SettingChangerDialog(
         isEnabled = isShowingThemeDialog,
-        title = stringResource(R.string.theme),
+        title = theme,
         options = ThemeSetting.values().toList(),
         currentSetting = currentTheme,
         onSettingChange = onCurrentThemeChange,
         onDismiss = { isShowingThemeDialog = false },
-        displayProvider = { context.getString(it.persianNameStringResource) }
+        displayProvider = { context.getString(it.persianNameStringResource) },
+        icon = { Icon(imageVector = Icons.TwoTone.DisplaySettings, contentDescription = theme) },
     )
 
     SettingsItemCard(
-        title = stringResource(R.string.theme)
-    ) {
-        SettingsItem(
-            onClick = { isShowingThemeDialog = true },
-            content = {
-                Icon(
-                    imageVector = Icons.TwoTone.DisplaySettings,
-                    contentDescription = stringResource(R.string.theme)
+        title = theme,
+        content = {
+            SettingsItem(
+                onClick = { isShowingThemeDialog = true },
+                content = {
+                    Icon(imageVector = Icons.TwoTone.DisplaySettings, contentDescription = theme)
+                    PersianText(stringResource(currentTheme.persianNameStringResource))
+                }
+            )
+            if (currentTheme == ThemeSetting.System && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                DynamicThemeNotice()
+        }
+    )
+}
+
+@Composable
+fun ApiModelSetting(
+    apiModel: String,
+    apiModels: List<String>,
+    onApiModelChange: (String) -> Unit
+) {
+    val dataSet = stringResource(R.string.apiModel)
+
+    var isShowingDialog by remember { mutableStateOf(false) }
+
+    SettingChangerDialog(
+        isEnabled = isShowingDialog,
+        title = dataSet,
+        options = apiModels.sorted(),
+        currentSetting = apiModel,
+        onSettingChange = onApiModelChange,
+        onDismiss = { isShowingDialog = false },
+        icon = { Icon(imageVector = Icons.TwoTone.Dataset, contentDescription = dataSet) }
+    )
+    SettingsItemCard(
+        title = dataSet,
+        content = {
+            SettingsItem(
+                onClick = { isShowingDialog = true },
+                content = {
+                    Icon(imageVector = Icons.TwoTone.Dataset, contentDescription = dataSet)
+                    PersianText(apiModel)
+                }
+            )
+            Button(
+                onClick = { onApiModelChange(Constants.CHAT_MODELS.first()) },
+                content = { PersianText(stringResource(R.string.change_it_to_default)) }
+            )
+            if (apiModel !in Constants.CHAT_MODELS) {
+                PersianText(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = buildString {
+                        append(stringResource(R.string.suggested_model_for_chat))
+                        append("\n")
+                        Constants.CHAT_MODELS.forEach {
+                            append("${it}\n")
+                        }
+                        trim()
+                    }
                 )
-                PersianText(stringResource(currentTheme.persianNameStringResource))
             }
-        )
-        if (currentTheme == ThemeSetting.System && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-            DynamicThemeNotice()
-    }
+        }
+    )
 }
 
 @Composable

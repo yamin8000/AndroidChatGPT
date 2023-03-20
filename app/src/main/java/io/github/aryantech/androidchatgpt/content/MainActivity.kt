@@ -3,11 +3,13 @@ package io.github.aryantech.androidchatgpt.content
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.core.os.LocaleListCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
@@ -29,10 +31,11 @@ import io.github.aryantech.androidchatgpt.util.DataStoreHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 
 val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     private val scope = CoroutineScope(Dispatchers.Main)
 
@@ -45,6 +48,11 @@ class MainActivity : ComponentActivity() {
             val theme = getCurrentTheme()
             setContent { Scaffold { MainContent(theme) } }
         }
+
+        var locales = AppCompatDelegate.getApplicationLocales()
+        if (locales.isEmpty)
+            locales = LocaleListCompat.forLanguageTags(Constants.DEFAULT_LANGUAGE_TAGS)
+        AppCompatDelegate.setApplicationLocales(locales)
     }
 
     private suspend fun getCurrentTheme() = ThemeSetting.valueOf(

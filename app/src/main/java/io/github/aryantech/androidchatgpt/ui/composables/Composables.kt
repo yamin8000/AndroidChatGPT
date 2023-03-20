@@ -113,14 +113,15 @@ fun <T> SettingChangerDialog(
     currentSetting: T,
     onSettingChange: (T) -> Unit,
     onDismiss: () -> Unit,
-    displayProvider: ((T) -> String) = { it.toString() }
+    displayProvider: ((T) -> String) = { it.toString() },
+    icon: @Composable (() -> Unit)? = null
 ) {
     if (isEnabled) {
         AlertDialog(
             onDismissRequest = onDismiss,
             confirmButton = { /*ignored*/ },
             title = { PersianText(title) },
-            icon = { Icon(imageVector = Icons.TwoTone.DisplaySettings, contentDescription = null) },
+            icon = icon,
             text = {
                 LazyColumn(
                     horizontalAlignment = Alignment.CenterHorizontally,
