@@ -25,24 +25,25 @@ class HistoryState(
     }
 
     private suspend fun getAllHistories() = db.historyDao().getAll()
+
     fun edit(
         id: Long,
         newTitle: String
     ) = scope.launch {
         crudAction(id) { item, dao ->
-            scope.launch { dao.update(item.copy(title = newTitle.trim())) }
+            dao.update(item.copy(title = newTitle.trim()))
         }
     }
 
     fun delete(
         id: Long
     ) = scope.launch {
-        crudAction(id) { item, dao -> scope.launch { dao.delete(item) } }
+        crudAction(id) { item, dao -> dao.delete(item) }
     }
 
     private suspend fun crudAction(
         id: Long,
-        action: (HistoryEntity, DAOs.HistoryDao) -> Unit
+        action: suspend (HistoryEntity, DAOs.HistoryDao) -> Unit
     ) {
         val dao = db.historyDao()
         val item = dao.getById(id)
