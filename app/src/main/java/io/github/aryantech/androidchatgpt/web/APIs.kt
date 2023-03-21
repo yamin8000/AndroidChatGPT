@@ -1,11 +1,9 @@
 package io.github.aryantech.androidchatgpt.web
 
-import io.github.aryantech.androidchatgpt.model.response.ChatCompletion
 import io.github.aryantech.androidchatgpt.model.request.CreateChatCompletion
 import io.github.aryantech.androidchatgpt.model.request.CreateCompletion
-import io.github.aryantech.androidchatgpt.model.response.Completion
-import io.github.aryantech.androidchatgpt.model.response.Model
-import io.github.aryantech.androidchatgpt.model.response.Models
+import io.github.aryantech.androidchatgpt.model.request.CreateEdit
+import io.github.aryantech.androidchatgpt.model.response.*
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -31,5 +29,11 @@ object APIs {
 
         @POST("chat/completions")
         suspend fun createChatCompletions(@Body createChatCompletion: CreateChatCompletion): ChatCompletion
+    }
+
+    interface EditsAPIs {
+
+        @POST("edits")
+        suspend fun createEdit(@Body createEdit: CreateEdit): Edits
     }
 }

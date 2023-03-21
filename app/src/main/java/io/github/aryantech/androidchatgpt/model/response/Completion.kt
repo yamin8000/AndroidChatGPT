@@ -9,5 +9,5 @@ data class Completion(
     val created: Long,
     val model: String,
     val choices: List<CompletionChoice>,
-    val usage: CompletionUsage
+    val usage: Usage
 )

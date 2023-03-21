@@ -2,7 +2,7 @@ package io.github.aryantech.androidchatgpt.model.response
 
 import com.squareup.moshi.Json
 
-data class CompletionUsage(
+data class Usage(
     @field:Json(name = "prompt_tokens")
     val promptTokens: Int,
     @field:Json(name = "completion_tokens")
