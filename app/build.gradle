@@ -72,7 +72,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.7.0-alpha02")
     //compose
-    def material3_version = "1.1.0-alpha08"
+    def material3_version = "1.1.0-beta01"
     implementation("androidx.compose.ui:ui:$compose_ui_libs_version")
     implementation("androidx.compose.material:material:$compose_libs_version")
     implementation("androidx.compose.ui:ui-tooling-preview:$compose_ui_libs_version")
