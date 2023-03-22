@@ -20,6 +20,7 @@ import io.github.aryantech.androidchatgpt.db.entity.HistoryEntity
 import io.github.aryantech.androidchatgpt.db.entity.HistoryItemEntity
 import io.github.aryantech.androidchatgpt.model.Chat
 import io.github.aryantech.androidchatgpt.model.request.CreateChatCompletion
+import io.github.aryantech.androidchatgpt.model.response.ChatCompletion
 import io.github.aryantech.androidchatgpt.util.Constants
 import io.github.aryantech.androidchatgpt.util.Constants.db
 import io.github.aryantech.androidchatgpt.util.DateTimeUtils
@@ -35,6 +36,7 @@ class ChatState(
     val chatInput: MutableState<String>,
     val chat: MutableState<List<Chat>>,
     val model: MutableState<String>,
+    val title: MutableState<String>,
     val isOnline: MutableState<Boolean>,
     val isWaitingForResponse: MutableState<Boolean>,
     private val historyId: MutableState<String?>,
@@ -71,40 +73,44 @@ class ChatState(
     private suspend fun handleHistoryLoading() {
         isSaveable = false
         isUpdatable = true
-        historyId.value?.let { chat.value = loadFromHistory(it.toLong()) }
+        historyId.value?.let {
+            chat.value = loadFromHistory(it.toLong())
+            title.value = db.historyDao().getById(it.toLong())?.title ?: ""
+        }
     }
 
-    fun newChatInput(
+    suspend fun newChatInput(
         chatInput: String
     ) {
         if (isModelSupported) createNewChatInputRequest(chatInput)
-        else scope.launch { snackbarHost.showSnackbar(modelNotSupported) }
+        else snackbarHost.showSnackbar(modelNotSupported)
     }
 
-    private fun createNewChatInputRequest(
+    private suspend fun createNewChatInputRequest(
         chatInput: String
     ) {
         resetInput()
         chat.value = chat.value + Chat(role = "user", content = chatInput.trim())
 
-        scope.launch {
-            isWaitingForResponse.value = true
-            isInputAllowed = false
-            val output = try {
-                retrofit.apiOf<APIs.ChatCompletionsAPIs>().createChatCompletions(
-                    CreateChatCompletion(
-                        model = model.value,
-                        messages = chat.value
-                    )
+        isWaitingForResponse.value = true
+        isInputAllowed = false
+        val output = try {
+            retrofit.apiOf<APIs.ChatCompletionsAPIs>().createChatCompletions(
+                CreateChatCompletion(
+                    model = model.value,
+                    messages = chat.value
                 )
-            } catch (e: Exception) {
-                handleError(e)
-                null
-            }
-            isWaitingForResponse.value = false
-            isInputAllowed = true
-            if (output != null)
-                updateChat(output.choices.first().message)
+            )
+        } catch (e: Exception) {
+            handleError(e)
+            null
+        }
+        isWaitingForResponse.value = false
+        isInputAllowed = true
+        if (output != null) {
+            updateChat(output.choices.first().message)
+            if (chat.value.size > 3)
+                predictTitle()
         }
     }
 
@@ -137,8 +143,8 @@ class ChatState(
     }
 
     private suspend fun saveToHistory() {
-        val title = createHistoryTitle()
-        val history = HistoryEntity(title = title, date = DateTimeUtils.zonedNow())
+        val historyTitle = createHistoryTitle(title.value)
+        val history = HistoryEntity(title = historyTitle, date = DateTimeUtils.zonedNow())
         val id = db.historyDao().insert(history)
         chat.value.forEach { chatItem -> addItemToHistory(chatItem, id) }
     }
@@ -155,11 +161,11 @@ class ChatState(
         db.historyItemDao().insert(item)
     }
 
-    private fun createHistoryTitle() = buildString {
+    private fun createHistoryTitle(
+        predictedTitle: String
+    ): String {
         val first = chat.value.first().content
-        append(first.take(30))
-        if (first.length > 30)
-            append("...")
+        return predictedTitle.ifBlank { first }
     }
 
     private suspend fun loadFromHistory(
@@ -167,6 +173,45 @@ class ChatState(
     ) = db.historyItemDao()
         .getByParam("historyId", historyId)
         .map { Chat(it.owner.toString().lowercase(), it.content) }
+
+    private suspend fun predictTitle() {
+        var titlePrediction: ChatCompletion? = null
+        try {
+            titlePrediction = Web.getRetrofit()
+                .apiOf<APIs.ChatCompletionsAPIs>()
+                .createChatCompletions(
+                    CreateChatCompletion(
+                        model = model.value,
+                        messages = listOf(
+                            Chat(
+                                role = "user",
+                                content = assembleChatForPrediction()
+                            )
+                        )
+                    )
+                )
+        } catch (e: Exception) {
+            //ignored
+        }
+        if (titlePrediction != null) {
+            title.value = titlePrediction.choices
+                .first()
+                .message
+                .content
+                .trim()
+                .replace("\\n", "")
+        }
+    }
+
+    private fun assembleChatForPrediction(): String {
+        return buildString {
+            append(Constants.TITLE_PREDICTION_PROMPT)
+            chat.value.forEach { message ->
+                append(message.content)
+                append("\n")
+            }
+        }
+    }
 }
 
 @Composable
@@ -174,6 +219,7 @@ fun rememberChatState(
     chatInput: MutableState<String> = rememberSaveable { mutableStateOf("") },
     chat: MutableState<List<Chat>> = rememberSaveable { mutableStateOf(listOf()) },
     model: MutableState<String> = rememberSaveable { mutableStateOf(Constants.DEFAULT_API_MODEL) },
+    title: MutableState<String> = rememberSaveable { mutableStateOf("") },
     isOnline: MutableState<Boolean> = rememberSaveable { mutableStateOf(true) },
     isWaitingForResponse: MutableState<Boolean> = rememberSaveable { mutableStateOf(false) },
     historyId: MutableState<String?> = rememberSaveable { mutableStateOf(null) },
@@ -184,6 +230,7 @@ fun rememberChatState(
     chatInput,
     chat,
     model,
+    title,
     isOnline,
     isWaitingForResponse,
     historyId,
@@ -195,6 +242,7 @@ fun rememberChatState(
         chatInput,
         chat,
         model,
+        title,
         isOnline,
         isWaitingForResponse,
         historyId,

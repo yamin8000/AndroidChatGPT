@@ -70,7 +70,13 @@ fun ChatContent(
     }
 
     ScaffoldWithTitle(
-        title = stringResource(R.string.new_chat),
+        title = {
+            PersianText(
+                text = state.title.value,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
         onBackClick = {
             state.scope.launch {
                 state.handleHistorySaving()
@@ -145,7 +151,7 @@ fun ChatContent(
                 isInputAllowed = state.isInputAllowed,
                 chatInput = state.chatInput.value,
                 onChatInputChange = { state.chatInput.value = it },
-                onNewChatInputSubmit = { state.newChatInput(state.chatInput.value) }
+                onNewChatInputSubmit = { state.scope.launch { state.newChatInput(state.chatInput.value) } }
             )
         }
     )

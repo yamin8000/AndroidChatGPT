@@ -21,6 +21,9 @@ object Constants {
 
     val PERSIAN_REGEX = Regex("""([\u0621-\u0659]+|[\u0670-\u06cc]+)+""")
 
+    const val TITLE_PREDICTION_PROMPT =
+        "find a title for this conversion:\n"
+
     const val INTERNET_CHECK_DELAY = 3000L
     val DNS_SERVERS = listOf("8.8.8.8", "8.8.4.4", "1.1.1.1", "4.2.2.4")
 }

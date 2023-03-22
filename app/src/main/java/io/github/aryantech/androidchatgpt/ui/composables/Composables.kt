@@ -256,6 +256,36 @@ fun ScaffoldWithTitle(
     bottomBar: @Composable () -> Unit = {},
     content: @Composable BoxScope.() -> Unit
 ) {
+    ScaffoldWithTitle(
+        title = {
+            PersianText(
+                text = title,
+                fontSize = 20.sp,
+                textAlign = TextAlign.Center
+            )
+        },
+        onBackClick = onBackClick,
+        modifier = modifier,
+        scrollBehavior = scrollBehavior,
+        actions = actions,
+        snackbarHost = snackbarHost,
+        bottomBar = bottomBar,
+        content = content
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ScaffoldWithTitle(
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    title: @Composable () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
+    actions: @Composable RowScope.() -> Unit = {},
+    snackbarHost: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
+    content: @Composable BoxScope.() -> Unit
+) {
     Scaffold(
         snackbarHost = snackbarHost,
         bottomBar = bottomBar,
@@ -268,13 +298,7 @@ fun ScaffoldWithTitle(
                 content = {
                     TopAppBar(
                         scrollBehavior = scrollBehavior,
-                        title = {
-                            PersianText(
-                                text = title,
-                                fontSize = 20.sp,
-                                textAlign = TextAlign.Center
-                            )
-                        },
+                        title = title,
                         actions = {
                             actions()
                             IconButton(

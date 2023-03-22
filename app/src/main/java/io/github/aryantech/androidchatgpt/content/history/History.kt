@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.airbnb.lottie.compose.*
 import io.github.aryantech.androidchatgpt.R
@@ -99,7 +100,11 @@ fun HistoryItem(
                             text = stringResource(R.string.title),
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
-                        PersianText(title)
+                        PersianText(
+                            text = title,
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis
+                        )
                     }
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
