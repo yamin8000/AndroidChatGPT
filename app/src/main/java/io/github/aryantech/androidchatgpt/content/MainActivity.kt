@@ -101,16 +101,16 @@ class MainActivity : AppCompatActivity() {
 
                 Scaffold {
                     Column {
+                        MainContent(
+                            currentTheme = theme,
+                            modifier = Modifier.weight(1f)
+                        )
                         TapsellAdContent(
                             modifier = Modifier
                                 .height(50.dp)
                                 .fillMaxWidth(),
                             onCreated = { adView = it },
                             onUpdate = { adView = it }
-                        )
-                        MainContent(
-                            currentTheme = theme,
-                            modifier = Modifier.weight(1f)
                         )
                     }
                 }
