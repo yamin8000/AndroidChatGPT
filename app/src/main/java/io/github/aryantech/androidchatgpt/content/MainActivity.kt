@@ -3,12 +3,16 @@ package io.github.aryantech.androidchatgpt.content
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.view.ViewGroup
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -17,6 +21,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
+import io.github.aryantech.androidchatgpt.ad.AdConstants
+import io.github.aryantech.androidchatgpt.ad.TapsellAdContent
 import io.github.aryantech.androidchatgpt.content.about.AboutContent
 import io.github.aryantech.androidchatgpt.content.chat.ChatContent
 import io.github.aryantech.androidchatgpt.content.history.HistoryContent
@@ -29,6 +35,12 @@ import io.github.aryantech.androidchatgpt.util.Constants
 import io.github.aryantech.androidchatgpt.util.Constants.db
 import io.github.aryantech.androidchatgpt.util.Constants.isDbInitialized
 import io.github.aryantech.androidchatgpt.util.DataStoreHelper
+import io.github.aryantech.androidchatgpt.util.log
+import ir.tapsell.plus.*
+import ir.tapsell.plus.model.AdNetworkError
+import ir.tapsell.plus.model.AdNetworks
+import ir.tapsell.plus.model.TapsellPlusAdModel
+import ir.tapsell.plus.model.TapsellPlusErrorModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -47,9 +59,81 @@ class MainActivity : AppCompatActivity() {
         scope.launch {
             db = createDb()
             val theme = getCurrentTheme()
-            setContent { Scaffold { MainContent(theme) } }
+            setContent {
+                var adView by remember { mutableStateOf<ViewGroup?>(null) }
+                var adId by remember { mutableStateOf("") }
+
+                TapsellPlus.showStandardBannerAd(
+                    this@MainActivity,
+                    adId,
+                    adView,
+                    object : AdShowListener() {
+                        override fun onOpened(tapsellPlusAdModel: TapsellPlusAdModel) {
+                            super.onOpened(tapsellPlusAdModel)
+                            tapsellPlusAdModel.responseId.log()
+                        }
+
+                        override fun onError(tapsellPlusErrorModel: TapsellPlusErrorModel) {
+                            super.onError(tapsellPlusErrorModel)
+                            tapsellPlusErrorModel.errorMessage.log()
+                        }
+                    })
+
+                LaunchedEffect(Unit) {
+                    TapsellPlus.requestStandardBannerAd(
+                        this@MainActivity,
+                        AdConstants.STANDARD_BANNER_ZONE_ID,
+                        TapsellPlusBannerType.BANNER_320x50,
+                        object : AdRequestCallback() {
+                            override fun response(ad: TapsellPlusAdModel?) {
+                                super.response(ad)
+                                adId = ad?.responseId ?: ""
+                                adId.log()
+                            }
+
+                            override fun error(error: String?) {
+                                super.error(error)
+                                error?.log()
+                            }
+                        }
+                    )
+                }
+
+                Scaffold {
+                    Column {
+                        TapsellAdContent(
+                            modifier = Modifier
+                                .height(50.dp)
+                                .fillMaxWidth(),
+                            onCreated = { adView = it },
+                            onUpdate = { adView = it }
+                        )
+                        MainContent(
+                            currentTheme = theme,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
         }
 
+        handleLocale()
+        handleAd()
+    }
+
+    private fun handleAd() {
+        TapsellPlus.initialize(this, AdConstants.TAPSELL_KEY, object : TapsellPlusInitListener {
+            override fun onInitializeSuccess(ads: AdNetworks?) {
+                ads?.name?.log()
+            }
+
+            override fun onInitializeFailed(ads: AdNetworks?, error: AdNetworkError?) {
+                error?.errorMessage?.log()
+            }
+        })
+    }
+
+    private fun handleLocale() {
         var locales = AppCompatDelegate.getApplicationLocales()
         if (locales.isEmpty)
             locales = LocaleListCompat.forLanguageTags(Constants.DEFAULT_LANGUAGE_TAGS)
@@ -73,6 +157,7 @@ class MainActivity : AppCompatActivity() {
 
 @Composable
 fun MainContent(
+    modifier: Modifier = Modifier,
     currentTheme: ThemeSetting
 ) {
     var theme by remember { mutableStateOf(currentTheme) }
@@ -83,6 +168,7 @@ fun MainContent(
     ) {
         val navController = rememberNavController()
         NavHost(
+            modifier = modifier,
             navController = navController,
             startDestination = Nav.Routes.home
         ) {
