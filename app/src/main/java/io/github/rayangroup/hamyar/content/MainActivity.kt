@@ -102,19 +102,11 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 Scaffold {
-                    Column {
-                        MainContent(
-                            currentTheme = theme,
-                            modifier = Modifier.weight(1f)
-                        )
-                        TapsellAdContent(
-                            modifier = Modifier
-                                .height(50.dp)
-                                .fillMaxWidth(),
-                            onCreated = { adView = it },
-                            onUpdate = { adView = it }
-                        )
-                    }
+                    MainContent(
+                        currentTheme = theme,
+                        onCreated = { adView = it },
+                        onUpdate = { adView = it }
+                    )
                 }
             }
         }
@@ -159,8 +151,9 @@ class MainActivity : AppCompatActivity() {
 
 @Composable
 fun MainContent(
-    modifier: Modifier = Modifier,
-    currentTheme: ThemeSetting
+    currentTheme: ThemeSetting,
+    onCreated: (ViewGroup) -> Unit,
+    onUpdate: (ViewGroup) -> Unit
 ) {
     var theme by remember { mutableStateOf(currentTheme) }
 
@@ -168,69 +161,79 @@ fun MainContent(
         isDarkTheme = isDarkTheme(theme, isSystemInDarkTheme()),
         isDynamicColor = theme == ThemeSetting.System
     ) {
-        val navController = rememberNavController()
-        NavHost(
-            modifier = modifier,
-            navController = navController,
-            startDestination = Nav.Routes.home
-        ) {
-            composable(Nav.Routes.home) {
-                HomeContent(
-                    onNavigateTo = { navigationItem ->
-                        when (navigationItem) {
-                            NavigationItem.Home -> {}
-                            NavigationItem.NewChat -> {
-                                navController.navigate("${Nav.Routes.chat}/-1")
+        Column {
+            val navController = rememberNavController()
+            NavHost(
+                modifier = Modifier.weight(1f),
+                navController = navController,
+                startDestination = Nav.Routes.home
+            ) {
+                composable(Nav.Routes.home) {
+                    HomeContent(
+                        onNavigateTo = { navigationItem ->
+                            when (navigationItem) {
+                                NavigationItem.Home -> {}
+                                NavigationItem.NewChat -> {
+                                    navController.navigate("${Nav.Routes.chat}/-1")
+                                }
+                                NavigationItem.History -> {
+                                    navController.navigate(Nav.Routes.history)
+                                }
+                                NavigationItem.Settings -> {
+                                    navController.navigate(Nav.Routes.settings)
+                                }
+                                NavigationItem.About -> {
+                                    navController.navigate(Nav.Routes.about)
+                                }
+                                NavigationItem.Images -> {
+                                    navController.navigate(Nav.Routes.images)
+                                }
                             }
-                            NavigationItem.History -> {
-                                navController.navigate(Nav.Routes.history)
-                            }
-                            NavigationItem.Settings -> {
-                                navController.navigate(Nav.Routes.settings)
-                            }
-                            NavigationItem.About -> {
-                                navController.navigate(Nav.Routes.about)
-                            }
-                            NavigationItem.Images -> {
-                                navController.navigate(Nav.Routes.images)
-                            }
-                        }
-                    })
+                        })
+                }
+
+                composable("${Nav.Routes.chat}/{${Nav.Args.historyId}}") {
+                    ChatContent(
+                        historyId = it.arguments?.getString(Nav.Args.historyId),
+                        onBackClick = { navController.popBackStack() },
+                        onSettingsClick = { navController.navigate(Nav.Routes.settings) }
+                    )
+                }
+
+                composable(Nav.Routes.settings) {
+                    SettingsContent(
+                        onThemeChanged = { newTheme -> theme = newTheme },
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
+
+                composable(Nav.Routes.about) {
+                    AboutContent(
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
+
+                composable(Nav.Routes.history) {
+                    HistoryContent(
+                        onBackClick = { navController.popBackStack() },
+                        onItemClick = { historyId -> navController.navigate("${Nav.Routes.chat}/$historyId") }
+                    )
+                }
+
+                composable(Nav.Routes.images) {
+                    ImagesContent(
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
             }
 
-            composable("${Nav.Routes.chat}/{${Nav.Args.historyId}}") {
-                ChatContent(
-                    historyId = it.arguments?.getString(Nav.Args.historyId),
-                    onBackClick = { navController.popBackStack() },
-                    onSettingsClick = { navController.navigate(Nav.Routes.settings) }
-                )
-            }
-
-            composable(Nav.Routes.settings) {
-                SettingsContent(
-                    onThemeChanged = { newTheme -> theme = newTheme },
-                    onBackClick = { navController.popBackStack() }
-                )
-            }
-
-            composable(Nav.Routes.about) {
-                AboutContent(
-                    onBackClick = { navController.popBackStack() }
-                )
-            }
-
-            composable(Nav.Routes.history) {
-                HistoryContent(
-                    onBackClick = { navController.popBackStack() },
-                    onItemClick = { historyId -> navController.navigate("${Nav.Routes.chat}/$historyId") }
-                )
-            }
-
-            composable(Nav.Routes.images) {
-                ImagesContent(
-                    onBackClick = { navController.popBackStack() }
-                )
-            }
+            TapsellAdContent(
+                modifier = Modifier
+                    .height(50.dp)
+                    .fillMaxWidth(),
+                onCreated = onCreated,
+                onUpdate = onUpdate
+            )
         }
     }
 }
