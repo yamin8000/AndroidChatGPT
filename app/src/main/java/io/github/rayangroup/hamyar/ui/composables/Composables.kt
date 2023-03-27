@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.sp
 import com.airbnb.lottie.compose.*
 import io.github.rayangroup.hamyar.R
 import io.github.rayangroup.hamyar.ui.theme.DefaultShape
-import io.github.rayangroup.hamyar.ui.theme.IranYekan
+import io.github.rayangroup.hamyar.ui.theme.Samim
 import io.github.rayangroup.hamyar.util.Constants
 import io.github.rayangroup.hamyar.util.Constants.DNS_SERVERS
 import io.github.rayangroup.hamyar.util.Constants.INTERNET_CHECK_DELAY
@@ -350,7 +350,7 @@ fun PersianText(
     var localFontWeight = fontWeight
     if (currentLocale == Locale("fa").language || Constants.PERSIAN_REGEX.containsMatchIn(text)
     ) {
-        localFontFamily = IranYekan
+        localFontFamily = Samim
         localStyle = LocalTextStyle.current.copy(textDirection = TextDirection.Rtl)
         localFontWeight = FontWeight.ExtraBold
     }

@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.github.rayangroup.hamyar.R
+import io.github.rayangroup.hamyar.ui.composables.PersianText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,7 +25,7 @@ fun MainTopAppBar(
     ) {
         TopAppBar(
             scrollBehavior = scrollBehavior,
-            title = { Text(title) },
+            title = { PersianText(title) },
             navigationIcon = {
                 IconButton(
                     onClick = onNavigationClick,
