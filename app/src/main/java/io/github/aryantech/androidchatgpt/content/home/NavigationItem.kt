@@ -11,7 +11,8 @@ enum class NavigationItem(
 ) {
     Home(R.string.home, Icons.TwoTone.Home),
     NewChat(R.string.new_chat, Icons.TwoTone.Chat),
-    History(R.string.history, Icons.TwoTone.History),
+    History(R.string.chat_history, Icons.TwoTone.History),
+    Images(R.string.image_generation, Icons.TwoTone.ImageSearch),
     Settings(R.string.settings, Icons.TwoTone.Settings),
     About(R.string.about, Icons.TwoTone.Info)
 }

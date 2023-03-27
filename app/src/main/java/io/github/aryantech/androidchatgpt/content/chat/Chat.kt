@@ -47,7 +47,11 @@ fun ChatContent(
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
-    val state = rememberChatState(historyId = remember { mutableStateOf(historyId) })
+    val defaultTitle = stringResource(R.string.new_chat)
+    val state = rememberChatState(
+        title = remember { mutableStateOf(defaultTitle) },
+        historyId = remember { mutableStateOf(historyId) }
+    )
 
     val listState = rememberLazyListState()
 

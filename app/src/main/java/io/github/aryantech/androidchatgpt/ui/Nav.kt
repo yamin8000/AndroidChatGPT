@@ -8,6 +8,7 @@ object Nav {
         const val history = "history"
         const val settings = "settings"
         const val about = "about"
+        const val images = "images"
     }
 
     object Args {

@@ -18,7 +18,7 @@
     <string name="no_internet_connection">There\'s no internet connection.</string>
     <string name="text_copied">Text copied.</string>
     <string name="language">Language</string>
-    <string name="history">History</string>
+    <string name="chat_history">Chat History</string>
     <string name="title">Title</string>
     <string name="date">Date</string>
     <string name="edit">Edit</string>
@@ -32,4 +32,5 @@
     <string name="home">Home</string>
     <string name="about">About</string>
     <string name="chat_with_me">Chat with me</string>
+    <string name="image_generation">Image Generation</string>
 </resources>

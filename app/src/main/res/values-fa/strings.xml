@@ -18,7 +18,7 @@
     <string name="no_internet_connection">ارتباط با اینترنت برقرار نیست.</string>
     <string name="text_copied">متن کپی شد.</string>
     <string name="language">زبان</string>
-    <string name="history">سابقه</string>
+    <string name="chat_history">سابقه گفتگوها</string>
     <string name="title">عنوان</string>
     <string name="date">تاریخ</string>
     <string name="edit">ویرایش</string>
@@ -32,4 +32,5 @@
     <string name="home">خانه</string>
     <string name="about">درباره</string>
     <string name="chat_with_me">با من گفتگو کن</string>
+    <string name="image_generation">تولید تصویر</string>
 </resources>

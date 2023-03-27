@@ -27,6 +27,8 @@ import io.github.aryantech.androidchatgpt.content.about.AboutContent
 import io.github.aryantech.androidchatgpt.content.chat.ChatContent
 import io.github.aryantech.androidchatgpt.content.history.HistoryContent
 import io.github.aryantech.androidchatgpt.content.home.HomeContent
+import io.github.aryantech.androidchatgpt.content.home.NavigationItem
+import io.github.aryantech.androidchatgpt.content.images.ImagesContent
 import io.github.aryantech.androidchatgpt.content.settings.SettingsContent
 import io.github.aryantech.androidchatgpt.db.AppDatabase
 import io.github.aryantech.androidchatgpt.ui.Nav
@@ -56,8 +58,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        db = createDb()
         scope.launch {
-            db = createDb()
             val theme = getCurrentTheme()
             setContent {
                 var adView by remember { mutableStateOf<ViewGroup?>(null) }
@@ -174,11 +176,26 @@ fun MainContent(
         ) {
             composable(Nav.Routes.home) {
                 HomeContent(
-                    onNavigateToSettings = { navController.navigate(Nav.Routes.settings) },
-                    onNavigateToNewChat = { navController.navigate("${Nav.Routes.chat}/-1") },
-                    onNavigateToHistory = { navController.navigate(Nav.Routes.history) },
-                    onNavigateToAbout = { navController.navigate(Nav.Routes.about) }
-                )
+                    onNavigateTo = { navigationItem ->
+                        when (navigationItem) {
+                            NavigationItem.Home -> {}
+                            NavigationItem.NewChat -> {
+                                navController.navigate("${Nav.Routes.chat}/-1")
+                            }
+                            NavigationItem.History -> {
+                                navController.navigate(Nav.Routes.history)
+                            }
+                            NavigationItem.Settings -> {
+                                navController.navigate(Nav.Routes.settings)
+                            }
+                            NavigationItem.About -> {
+                                navController.navigate(Nav.Routes.about)
+                            }
+                            NavigationItem.Images -> {
+                                navController.navigate(Nav.Routes.images)
+                            }
+                        }
+                    })
             }
 
             composable("${Nav.Routes.chat}/{${Nav.Args.historyId}}") {
@@ -206,6 +223,12 @@ fun MainContent(
                 HistoryContent(
                     onBackClick = { navController.popBackStack() },
                     onItemClick = { historyId -> navController.navigate("${Nav.Routes.chat}/$historyId") }
+                )
+            }
+
+            composable(Nav.Routes.images) {
+                ImagesContent(
+                    onBackClick = { navController.popBackStack() }
                 )
             }
         }

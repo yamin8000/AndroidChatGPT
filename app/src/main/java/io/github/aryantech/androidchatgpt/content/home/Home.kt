@@ -16,10 +16,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeContent(
-    onNavigateToNewChat: () -> Unit,
-    onNavigateToHistory: () -> Unit,
-    onNavigateToSettings: () -> Unit,
-    onNavigateToAbout: () -> Unit
+    onNavigateTo: (NavigationItem) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -52,13 +49,7 @@ fun HomeContent(
                         onClick = {
                             scope.launch { drawerState.close() }
                             selectedItem = item
-                            when (item) {
-                                NavigationItem.Home -> {}
-                                NavigationItem.NewChat -> onNavigateToNewChat()
-                                NavigationItem.History -> onNavigateToHistory()
-                                NavigationItem.Settings -> onNavigateToSettings()
-                                NavigationItem.About -> onNavigateToAbout()
-                            }
+                            onNavigateTo(item)
                         }
                     )
                 }
@@ -70,9 +61,9 @@ fun HomeContent(
                 topBar = {
                     MainTopAppBar(
                         scrollBehavior = scrollBehavior,
-                        onSettingsClick = onNavigateToSettings,
+                        onSettingsClick = { onNavigateTo(NavigationItem.Settings) },
                         onNavigationClick = { scope.launch { drawerState.open() } },
-                        onAboutClick = onNavigateToAbout
+                        onAboutClick = { onNavigateTo(NavigationItem.About) }
                     )
                 },
                 content = { paddingValues ->
@@ -87,7 +78,7 @@ fun HomeContent(
                             ) {
                                 Button(
                                     content = { PersianText(stringResource(R.string.chat_with_me)) },
-                                    onClick = onNavigateToNewChat
+                                    onClick = { onNavigateTo(NavigationItem.NewChat) }
                                 )
                                 Lottie(R.raw.robot)
                             }

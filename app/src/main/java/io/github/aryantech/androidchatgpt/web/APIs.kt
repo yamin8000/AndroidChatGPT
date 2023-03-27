@@ -1,5 +1,6 @@
 package io.github.aryantech.androidchatgpt.web
 
+import io.github.aryantech.androidchatgpt.model.request.CreateUrlImage
 import io.github.aryantech.androidchatgpt.model.request.CreateChatCompletion
 import io.github.aryantech.androidchatgpt.model.request.CreateCompletion
 import io.github.aryantech.androidchatgpt.model.request.CreateEdit
@@ -35,5 +36,13 @@ object APIs {
 
         @POST("edits")
         suspend fun createEdit(@Body createEdit: CreateEdit): Edits
+    }
+
+    interface ImagesAPIs {
+        @POST("images/generations")
+        suspend fun createUrlImage(@Body createImage: CreateUrlImage): Images<UrlImage>
+
+        @POST("images/generations")
+        suspend fun createB64Image(@Body createImage: CreateUrlImage): Images<B64Image>
     }
 }

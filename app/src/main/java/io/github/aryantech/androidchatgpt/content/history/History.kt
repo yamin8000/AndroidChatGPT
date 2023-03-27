@@ -34,7 +34,7 @@ fun HistoryContent(
     val state = rememberHistoryState()
 
     ScaffoldWithTitle(
-        title = stringResource(id = R.string.history),
+        title = stringResource(id = R.string.chat_history),
         onBackClick = onBackClick,
         content = {
             LazyColumn(
