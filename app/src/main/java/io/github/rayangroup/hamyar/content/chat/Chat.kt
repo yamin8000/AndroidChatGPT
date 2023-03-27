@@ -34,10 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.rayangroup.hamyar.R
 import io.github.rayangroup.hamyar.ui.animation.AnimatedDots
-import io.github.rayangroup.hamyar.ui.composables.InternetAwareComposable
-import io.github.rayangroup.hamyar.ui.composables.MySnackbar
-import io.github.rayangroup.hamyar.ui.composables.PersianText
-import io.github.rayangroup.hamyar.ui.composables.ScaffoldWithTitle
+import io.github.rayangroup.hamyar.ui.composables.*
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -168,7 +165,7 @@ private fun UserInput(
     onChatInputChange: (String) -> Unit,
     onNewChatInputSubmit: () -> Unit
 ) {
-    TextField(
+    PersianTextField(
         enabled = isInputAllowed,
         label = { PersianText(text = stringResource(R.string.chat_input)) },
         value = chatInput,

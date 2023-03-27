@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.ArrowBack
 import androidx.compose.material.icons.twotone.ArrowDropDownCircle
@@ -18,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -27,7 +30,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
@@ -42,7 +45,7 @@ import io.github.rayangroup.hamyar.ui.theme.Samim
 import io.github.rayangroup.hamyar.util.Constants
 import io.github.rayangroup.hamyar.util.Constants.DNS_SERVERS
 import io.github.rayangroup.hamyar.util.Constants.INTERNET_CHECK_DELAY
-import io.github.rayangroup.hamyar.util.getCurrentLocale
+import io.github.rayangroup.hamyar.util.isLocalePersian
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -326,6 +329,62 @@ fun ScaffoldWithTitle(
 }
 
 @Composable
+fun PersianTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    textStyle: TextStyle = LocalTextStyle.current,
+    label: @Composable (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    prefix: @Composable (() -> Unit)? = null,
+    suffix: @Composable (() -> Unit)? = null,
+    supportingText: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    singleLine: Boolean = false,
+    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
+    minLines: Int = 1,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    shape: Shape = TextFieldDefaults.filledShape
+) {
+    var localTextStyle = textStyle
+    if (LocalContext.current.isLocalePersian(value) || Constants.PERSIAN_REGEX.containsMatchIn(value)) {
+        localTextStyle = LocalTextStyle.current.copy(textDirection = TextDirection.Rtl)
+        localTextStyle = localTextStyle.copy(fontFamily = Samim)
+    }
+    TextField(
+        value,
+        onValueChange,
+        modifier,
+        enabled,
+        readOnly,
+        localTextStyle,
+        label,
+        placeholder,
+        leadingIcon,
+        trailingIcon,
+        prefix,
+        suffix,
+        supportingText,
+        isError,
+        visualTransformation,
+        keyboardOptions,
+        keyboardActions,
+        singleLine,
+        maxLines,
+        minLines,
+        interactionSource,
+        shape
+    )
+}
+
+@Composable
 fun PersianText(
     text: String,
     modifier: Modifier = Modifier,
@@ -346,13 +405,9 @@ fun PersianText(
 ) {
     var localStyle = style
     var localFontFamily = fontFamily
-    val currentLocale = getCurrentLocale(LocalContext.current).language
-    var localFontWeight = fontWeight
-    if (currentLocale == Locale("fa").language || Constants.PERSIAN_REGEX.containsMatchIn(text)
-    ) {
+    if (LocalContext.current.isLocalePersian(text)) {
         localFontFamily = Samim
         localStyle = LocalTextStyle.current.copy(textDirection = TextDirection.Rtl)
-        localFontWeight = FontWeight.ExtraBold
     }
     Text(
         text = text,
@@ -360,7 +415,7 @@ fun PersianText(
         color = color,
         fontSize = fontSize,
         fontStyle = fontStyle,
-        fontWeight = localFontWeight,
+        fontWeight = fontWeight,
         fontFamily = localFontFamily,
         letterSpacing = letterSpacing,
         textDecoration = textDecoration,

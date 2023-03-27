@@ -21,6 +21,7 @@ import com.airbnb.lottie.compose.*
 import io.github.rayangroup.hamyar.R
 import io.github.rayangroup.hamyar.ui.composables.Lottie
 import io.github.rayangroup.hamyar.ui.composables.PersianText
+import io.github.rayangroup.hamyar.ui.composables.PersianTextField
 import io.github.rayangroup.hamyar.ui.composables.ScaffoldWithTitle
 import io.github.rayangroup.hamyar.util.DateTimeUtils.toIso
 import java.time.ZonedDateTime
@@ -258,7 +259,7 @@ fun EditDialog(
                         .fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     content = {
-                        TextField(
+                        PersianTextField(
                             singleLine = true,
                             value = newTitle,
                             onValueChange = { newTitle = it },

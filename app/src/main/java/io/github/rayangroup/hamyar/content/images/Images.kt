@@ -20,6 +20,7 @@ import coil.compose.AsyncImagePainter
 import io.github.rayangroup.hamyar.ui.composables.ScaffoldWithTitle
 import kotlinx.coroutines.launch
 import io.github.rayangroup.hamyar.R
+import io.github.rayangroup.hamyar.ui.composables.PersianTextField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,7 +70,7 @@ fun UserInput(
     onValueChanged: (String) -> Unit,
     onSearch: () -> Unit
 ) {
-    TextField(
+    PersianTextField(
         modifier = Modifier.fillMaxWidth(),
         enabled = isEnabled,
         maxLines = 2,
