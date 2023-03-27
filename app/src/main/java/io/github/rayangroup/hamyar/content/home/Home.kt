@@ -74,7 +74,8 @@ fun HomeContent(
                         content = {
                             Column(
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.fillMaxWidth()
                             ) {
                                 Button(
                                     content = { PersianText(stringResource(R.string.chat_with_me)) },
