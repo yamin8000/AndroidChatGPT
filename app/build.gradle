@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace "io.github.rayan_group.hamyar"
+    namespace "io.github.RayanGroup.hamyar"
     compileSdk 33
 
     defaultConfig {
-        applicationId "io.github.rayan_group.hamyar"
+        applicationId "io.github.RayanGroup.hamyar"
         minSdk 24
         targetSdk 33
         versionCode 8

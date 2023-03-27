@@ -1,0 +1,6 @@
+package io.github.RayanGroup.hamyar.model.response
+
+data class EditChoice(
+    val text: String,
+    val index: Int
+)
