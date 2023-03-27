@@ -1,28 +1,21 @@
-package io.github.rayangroup.hamyar.content
+package io.github.rayangroup.hamyar.content.main
 
-import android.annotation.SuppressLint
-import android.content.Context
-import android.os.Bundle
 import android.view.ViewGroup
-import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.os.LocaleListCompat
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.room.Room
 import io.github.rayangroup.hamyar.ad.AdConstants
 import io.github.rayangroup.hamyar.ad.TapsellAdContent
+import io.github.rayangroup.hamyar.content.ThemeSetting
 import io.github.rayangroup.hamyar.content.about.AboutContent
 import io.github.rayangroup.hamyar.content.chat.ChatContent
 import io.github.rayangroup.hamyar.content.history.HistoryContent
@@ -30,127 +23,74 @@ import io.github.rayangroup.hamyar.content.home.HomeContent
 import io.github.rayangroup.hamyar.content.home.NavigationItem
 import io.github.rayangroup.hamyar.content.images.ImagesContent
 import io.github.rayangroup.hamyar.content.settings.SettingsContent
-import io.github.rayangroup.hamyar.db.AppDatabase
 import io.github.rayangroup.hamyar.ui.Nav
 import io.github.rayangroup.hamyar.ui.theme.AppTheme
-import io.github.rayangroup.hamyar.util.Constants
-import io.github.rayangroup.hamyar.util.Constants.db
-import io.github.rayangroup.hamyar.util.Constants.isDbInitialized
-import io.github.rayangroup.hamyar.util.DataStoreHelper
+import io.github.rayangroup.hamyar.util.findActivity
 import io.github.rayangroup.hamyar.util.log
-import ir.tapsell.plus.*
-import ir.tapsell.plus.model.AdNetworkError
-import ir.tapsell.plus.model.AdNetworks
+import ir.tapsell.plus.AdRequestCallback
+import ir.tapsell.plus.AdShowListener
+import ir.tapsell.plus.TapsellPlus
+import ir.tapsell.plus.TapsellPlusBannerType
 import ir.tapsell.plus.model.TapsellPlusAdModel
 import ir.tapsell.plus.model.TapsellPlusErrorModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.*
 
-val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
-
-class MainActivity : AppCompatActivity() {
-
-    private val scope = CoroutineScope(Dispatchers.Main)
-
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        db = createDb()
+@Composable
+internal fun RequestTapsellAd(
+    onNewAdId: (String) -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    LocalContext.current.findActivity()?.let { activity ->
         scope.launch {
-            val theme = getCurrentTheme()
-            setContent {
-                var adView by remember { mutableStateOf<ViewGroup?>(null) }
-                var adId by remember { mutableStateOf("") }
-
-                TapsellPlus.showStandardBannerAd(
-                    this@MainActivity,
-                    adId,
-                    adView,
-                    object : AdShowListener() {
-                        override fun onOpened(tapsellPlusAdModel: TapsellPlusAdModel) {
-                            super.onOpened(tapsellPlusAdModel)
-                            tapsellPlusAdModel.responseId.log()
+            TapsellPlus.requestStandardBannerAd(
+                activity,
+                AdConstants.STANDARD_BANNER_ZONE_ID,
+                TapsellPlusBannerType.BANNER_320x50,
+                object : AdRequestCallback() {
+                    override fun response(ad: TapsellPlusAdModel?) {
+                        super.response(ad)
+                        (ad?.responseId)?.let {
+                            it.log()
+                            onNewAdId(it)
                         }
+                    }
 
-                        override fun onError(tapsellPlusErrorModel: TapsellPlusErrorModel) {
-                            super.onError(tapsellPlusErrorModel)
-                            tapsellPlusErrorModel.errorMessage.log()
-                        }
-                    })
-
-                LaunchedEffect(Unit) {
-                    TapsellPlus.requestStandardBannerAd(
-                        this@MainActivity,
-                        AdConstants.STANDARD_BANNER_ZONE_ID,
-                        TapsellPlusBannerType.BANNER_320x50,
-                        object : AdRequestCallback() {
-                            override fun response(ad: TapsellPlusAdModel?) {
-                                super.response(ad)
-                                adId = ad?.responseId ?: ""
-                                adId.log()
-                            }
-
-                            override fun error(error: String?) {
-                                super.error(error)
-                                error?.log()
-                            }
-                        }
-                    )
+                    override fun error(error: String?) {
+                        super.error(error)
+                        error?.log()
+                    }
                 }
-
-                Scaffold {
-                    MainContent(
-                        currentTheme = theme,
-                        onCreated = { adView = it },
-                        onUpdate = { adView = it }
-                    )
-                }
-            }
+            )
         }
-
-        handleLocale()
-        handleAd()
-    }
-
-    private fun handleAd() {
-        TapsellPlus.initialize(this, AdConstants.TAPSELL_KEY, object : TapsellPlusInitListener {
-            override fun onInitializeSuccess(ads: AdNetworks?) {
-                ads?.name?.log()
-            }
-
-            override fun onInitializeFailed(ads: AdNetworks?, error: AdNetworkError?) {
-                error?.errorMessage?.log()
-            }
-        })
-    }
-
-    private fun handleLocale() {
-        var locales = AppCompatDelegate.getApplicationLocales()
-        if (locales.isEmpty)
-            locales = LocaleListCompat.forLanguageTags(Constants.DEFAULT_LANGUAGE_TAGS)
-        AppCompatDelegate.setApplicationLocales(locales)
-    }
-
-    private suspend fun getCurrentTheme() = ThemeSetting.valueOf(
-        DataStoreHelper(settingsDataStore).getString(Constants.THEME) ?: ThemeSetting.System.name
-    )
-
-    private fun createDb(): AppDatabase {
-        return if (!isDbInitialized())
-            Room.databaseBuilder(
-                this,
-                AppDatabase::class.java,
-                "db"
-            ).build()
-        else db
     }
 }
 
 @Composable
-fun MainContent(
+internal fun ShowTapsellAd(
+    adId: String,
+    adView: ViewGroup?
+) {
+    LocalContext.current.findActivity()?.let { activity ->
+        TapsellPlus.showStandardBannerAd(
+            activity,
+            adId,
+            adView,
+            object : AdShowListener() {
+                override fun onOpened(tapsellPlusAdModel: TapsellPlusAdModel) {
+                    super.onOpened(tapsellPlusAdModel)
+                    tapsellPlusAdModel.responseId.log()
+                }
+
+                override fun onError(tapsellPlusErrorModel: TapsellPlusErrorModel) {
+                    super.onError(tapsellPlusErrorModel)
+                    tapsellPlusErrorModel.errorMessage.log()
+                }
+            })
+    }
+}
+
+@Composable
+internal fun MainContent(
     currentTheme: ThemeSetting,
     onCreated: (ViewGroup) -> Unit,
     onUpdate: (ViewGroup) -> Unit
@@ -229,7 +169,8 @@ fun MainContent(
 
             TapsellAdContent(
                 modifier = Modifier
-                    .height(50.dp)
+                    .wrapContentHeight()
+                    .padding(4.dp)
                     .fillMaxWidth(),
                 onCreated = onCreated,
                 onUpdate = onUpdate

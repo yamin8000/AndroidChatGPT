@@ -15,7 +15,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.lifecycleScope
 import io.github.rayangroup.hamyar.R
-import io.github.rayangroup.hamyar.content.settingsDataStore
+import io.github.rayangroup.hamyar.content.main.settingsDataStore
 import io.github.rayangroup.hamyar.db.entity.HistoryEntity
 import io.github.rayangroup.hamyar.db.entity.HistoryItemEntity
 import io.github.rayangroup.hamyar.model.Chat

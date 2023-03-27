@@ -13,7 +13,7 @@
         android:theme="@style/Theme.AndroidChatGPT"
         tools:targetApi="tiramisu">
         <activity
-            android:name=".content.MainActivity"
+            android:name=".content.main.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|keyboard|locale|screenLayout|screenSize"
             android:exported="true"
             android:theme="@style/Theme.AndroidChatGPT">

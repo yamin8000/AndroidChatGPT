@@ -11,7 +11,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.lifecycleScope
 import io.github.rayangroup.hamyar.content.ThemeSetting
-import io.github.rayangroup.hamyar.content.settingsDataStore
+import io.github.rayangroup.hamyar.content.main.settingsDataStore
 import io.github.rayangroup.hamyar.util.Constants
 import io.github.rayangroup.hamyar.util.DataStoreHelper
 import io.github.rayangroup.hamyar.web.APIs
