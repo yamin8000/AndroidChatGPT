@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">همیار</string>
     <string name="theme">زمینه</string>
     <string name="theme_system">سیستم</string>
     <string name="theme_light">روشن</string>
