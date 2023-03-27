@@ -20,10 +20,10 @@ import io.github.rayangroup.hamyar.content.about.AboutContent
 import io.github.rayangroup.hamyar.content.chat.ChatContent
 import io.github.rayangroup.hamyar.content.history.HistoryContent
 import io.github.rayangroup.hamyar.content.home.HomeContent
-import io.github.rayangroup.hamyar.content.home.NavigationItem
 import io.github.rayangroup.hamyar.content.images.ImagesContent
 import io.github.rayangroup.hamyar.content.settings.SettingsContent
 import io.github.rayangroup.hamyar.ui.Nav
+import io.github.rayangroup.hamyar.ui.Nav.navigationDestinations
 import io.github.rayangroup.hamyar.ui.theme.AppTheme
 import io.github.rayangroup.hamyar.util.findActivity
 import io.github.rayangroup.hamyar.util.log
@@ -111,23 +111,8 @@ internal fun MainContent(
                 composable(Nav.Routes.home) {
                     HomeContent(
                         onNavigateTo = { navigationItem ->
-                            when (navigationItem) {
-                                NavigationItem.Home -> {}
-                                NavigationItem.NewChat -> {
-                                    navController.navigate("${Nav.Routes.chat}/-1")
-                                }
-                                NavigationItem.History -> {
-                                    navController.navigate(Nav.Routes.history)
-                                }
-                                NavigationItem.Settings -> {
-                                    navController.navigate(Nav.Routes.settings)
-                                }
-                                NavigationItem.About -> {
-                                    navController.navigate(Nav.Routes.about)
-                                }
-                                NavigationItem.Images -> {
-                                    navController.navigate(Nav.Routes.images)
-                                }
+                            navigationDestinations[navigationItem]?.let {
+                                navController.navigate(it)
                             }
                         })
                 }

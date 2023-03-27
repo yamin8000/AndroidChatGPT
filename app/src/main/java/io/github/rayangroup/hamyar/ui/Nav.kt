@@ -1,5 +1,7 @@
 package io.github.rayangroup.hamyar.ui
 
+import io.github.rayangroup.hamyar.content.home.NavigationItem
+
 object Nav {
 
     object Routes {
@@ -14,4 +16,12 @@ object Nav {
     object Args {
         const val historyId = "historyId"
     }
+
+    val navigationDestinations = mapOf(
+        NavigationItem.NewChat to "${Routes.chat}/-1",
+        NavigationItem.History to Routes.history,
+        NavigationItem.Settings to Routes.settings,
+        NavigationItem.About to Routes.about,
+        NavigationItem.Images to Routes.images,
+    )
 }
