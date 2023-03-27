@@ -20,7 +20,7 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class io.github.RayanGroup.hamyar.** { <fields>; }
+-keep class io.github.rayangroup.hamyar.** { <fields>; }
 
 # This is generated automatically by the Android Gradle plugin.
 -dontwarn org.bouncycastle.jsse.BCSSLParameters
