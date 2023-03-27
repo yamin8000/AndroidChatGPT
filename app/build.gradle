@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace 'io.github.aryantech.androidchatgpt'
+    namespace "io.github.rayan_group.hamyar"
     compileSdk 33
 
     defaultConfig {
-        applicationId "io.github.aryantech.androidchatgpt"
+        applicationId "io.github.rayan_group.hamyar"
         minSdk 24
         targetSdk 33
         versionCode 8
