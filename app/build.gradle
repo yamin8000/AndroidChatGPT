@@ -101,7 +101,7 @@ dependencies {
     //ad
     implementation("ir.tapsell.plus:tapsell-plus-sdk-android:2.1.8")
     //coil
-    def coil_version = "2.2.2"
+    def coil_version = "2.3.0"
     implementation("io.coil-kt:coil:$coil_version")
     implementation("io.coil-kt:coil-compose:$coil_version")
 }
