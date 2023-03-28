@@ -37,7 +37,7 @@ import io.github.rayangroup.hamyar.ui.animation.AnimatedDots
 import io.github.rayangroup.hamyar.ui.composables.*
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun ChatContent(
     historyId: String?,
@@ -72,11 +72,13 @@ fun ChatContent(
 
     ScaffoldWithTitle(
         title = {
-            PersianText(
-                text = state.title.value,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            AnimatedContent(state.title.value) {
+                PersianText(
+                    text = state.title.value,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         },
         onBackClick = {
             state.scope.launch {
