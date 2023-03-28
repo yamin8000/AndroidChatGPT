@@ -20,6 +20,7 @@ import coil.compose.AsyncImagePainter
 import io.github.rayangroup.hamyar.ui.composables.ScaffoldWithTitle
 import kotlinx.coroutines.launch
 import io.github.rayangroup.hamyar.R
+import io.github.rayangroup.hamyar.ui.composables.PersianText
 import io.github.rayangroup.hamyar.ui.composables.PersianTextField
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -104,6 +105,9 @@ fun UserInput(
                     )
                 }
             )
+        },
+        placeholder = {
+            PersianText(text = stringResource(id = R.string.image_input_placeholder))
         }
     )
 

@@ -35,6 +35,7 @@
     <string name="chat_with_me">با من گفتگو کن</string>
     <string name="image_generation">تولید تصویر</string>
     <string name="experimental_features">قابلیت های آزمایشی</string>
-    <string name="experimental_features_notice">فعال کردن قابلیت های آزمایشی ممکن است منجر به خطا خوردن برنامه شود.</string>
+    <string name="experimental_features_notice">فعال کردن قابلیت های آزمایشی ممکن است منجر به خطا در برنامه شود.</string>
     <string name="about_text">این اپلکیشن که در دپارتمان مهندسی نرم افزار شرکت توسعه فناوری ویرا رایان کاسپین توسعه داده شده است، در دو بخش گفتگو و ساخت تصاویر پیاده سازی شده است.\nدر بخش گفتگو، کاربر امکان گفت و گو با سرور هوش مصنوعی شرکت OpenAI که با عنوان CHAT-GPT شناخته می شود را دارد.\nدر بخش ساخت تصاویر، کاربر توصیف خود از تصویر مورد نظر را ارائه می دهد و اپلیکیشن تصویر مرتبط با توصیف را نمایش می دهد.</string>
+    <string name="image_input_placeholder">توصیف خود از تصویر دلخواه را ترجیحاً به زبان انگلیسی وارد نمایید.</string>
 </resources>
