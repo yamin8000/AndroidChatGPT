@@ -466,3 +466,32 @@ fun SwitchWithText(
         }
     )
 }
+
+@Composable
+fun LetterSpacedPersianText(
+    text: String = "سلام"
+) {
+    if (text.length != 1) {
+        val totalCursive = "ئبپتثجچحخسشصضطظعغفقکگلمنهی"
+        val finalCursive = "أؤدذرزژو"
+        val newText = buildString {
+            var i = 0
+            while (i < text.length) {
+                val current = text.getOrNull(i)
+                append(current)
+                val next = text.getOrNull(i + 1)
+                if (current != null && next != null) {
+                    if (totalCursive.contains(current) && totalCursive.contains(next)) {
+                        append('ـ')
+                    }
+                    append(next)
+                    i += 2
+                } else {
+                    append(current)
+                    i++
+                }
+            }
+        }
+        Text(newText)
+    } else Text(text)
+}

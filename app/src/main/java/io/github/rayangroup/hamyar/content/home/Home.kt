@@ -9,6 +9,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.github.rayangroup.hamyar.R
+import io.github.rayangroup.hamyar.ui.composables.LetterSpacedPersianText
 import io.github.rayangroup.hamyar.ui.composables.Lottie
 import io.github.rayangroup.hamyar.ui.composables.PersianText
 import kotlinx.coroutines.launch
