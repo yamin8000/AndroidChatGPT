@@ -24,7 +24,8 @@ class SettingsState(
     val scope: LifecycleCoroutineScope,
     val themeSetting: MutableState<ThemeSetting>,
     val apiModel: MutableState<String>,
-    val apiModels: MutableState<List<String>>
+    val apiModels: MutableState<List<String>>,
+    val isExperimentalFeaturesOn: MutableState<Boolean>
 ) {
     private val settings = DataStoreHelper(context.settingsDataStore)
 
@@ -39,6 +40,8 @@ class SettingsState(
                 apiModels.value = getModelsFromApi()
                 updateApiModels(apiModels.value)
             }
+            isExperimentalFeaturesOn.value =
+                settings.getBool(Constants.EXPERIMENTAL_FEATURES_STATE) ?: false
         }
     }
 
@@ -70,6 +73,13 @@ class SettingsState(
         apiModels.value = models
         settings.setStringSet(Constants.API_MODELS, models.toSet())
     }
+
+    suspend fun updateExperimentalFeatureState(
+        state: Boolean
+    ) {
+        isExperimentalFeaturesOn.value = state
+        settings.setBool(Constants.EXPERIMENTAL_FEATURES_STATE, state)
+    }
 }
 
 @Composable
@@ -78,7 +88,15 @@ fun rememberSettingsState(
     coroutineScope: LifecycleCoroutineScope = LocalLifecycleOwner.current.lifecycleScope,
     themeSetting: MutableState<ThemeSetting> = rememberSaveable { mutableStateOf(ThemeSetting.System) },
     apiModel: MutableState<String> = rememberSaveable { mutableStateOf(Constants.DEFAULT_API_MODEL) },
-    apiModels: MutableState<List<String>> = rememberSaveable { mutableStateOf(listOf()) }
-) = remember(context, coroutineScope, themeSetting, apiModel, apiModels) {
-    SettingsState(context, coroutineScope, themeSetting, apiModel, apiModels)
+    apiModels: MutableState<List<String>> = rememberSaveable { mutableStateOf(listOf()) },
+    isExperimentalFeaturesOn: MutableState<Boolean> = rememberSaveable { mutableStateOf(false) }
+) = remember(context, coroutineScope, themeSetting, apiModel, apiModels, isExperimentalFeaturesOn) {
+    SettingsState(
+        context,
+        coroutineScope,
+        themeSetting,
+        apiModel,
+        apiModels,
+        isExperimentalFeaturesOn
+    )
 }

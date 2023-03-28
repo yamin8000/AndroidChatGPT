@@ -33,4 +33,6 @@
     <string name="about">About</string>
     <string name="chat_with_me">Chat with me</string>
     <string name="image_generation">Image Generation</string>
+    <string name="experimental_features">Experimental Features</string>
+    <string name="experimental_features_notice">Enabling Experimental Features can lead to crashes.</string>
 </resources>

@@ -34,4 +34,6 @@
     <string name="about">درباره</string>
     <string name="chat_with_me">با من گفتگو کن</string>
     <string name="image_generation">تولید تصویر</string>
+    <string name="experimental_features">قابلیت های آزمایشی</string>
+    <string name="experimental_features_notice">فعال کردن قابلیت های آزمایشی ممکن است منجر به خطا خوردن برنامه شود.</string>
 </resources>

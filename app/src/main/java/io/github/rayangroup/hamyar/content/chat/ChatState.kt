@@ -11,7 +11,6 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.lifecycleScope
 import io.github.rayangroup.hamyar.R
@@ -20,29 +19,32 @@ import io.github.rayangroup.hamyar.db.entity.HistoryEntity
 import io.github.rayangroup.hamyar.db.entity.HistoryItemEntity
 import io.github.rayangroup.hamyar.model.Chat
 import io.github.rayangroup.hamyar.model.request.CreateChatCompletion
+import io.github.rayangroup.hamyar.model.request.CreateEdit
 import io.github.rayangroup.hamyar.model.response.ChatCompletion
 import io.github.rayangroup.hamyar.util.Constants
 import io.github.rayangroup.hamyar.util.Constants.db
+import io.github.rayangroup.hamyar.util.DataStoreHelper
 import io.github.rayangroup.hamyar.util.DateTimeUtils
 import io.github.rayangroup.hamyar.util.log
 import io.github.rayangroup.hamyar.web.APIs
 import io.github.rayangroup.hamyar.web.Web
 import io.github.rayangroup.hamyar.web.Web.apiOf
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 class ChatState(
     val chatInput: MutableState<String>,
+    val chatInputSuggestion: MutableState<String>,
     val chat: MutableState<List<Chat>>,
     val model: MutableState<String>,
     val title: MutableState<String>,
     val isOnline: MutableState<Boolean>,
     val isWaitingForResponse: MutableState<Boolean>,
     private val historyId: MutableState<String?>,
-    private val context: Context,
+    context: Context,
     private val focusManager: FocusManager,
-    val scope: LifecycleCoroutineScope
+    val scope: LifecycleCoroutineScope,
+    val isExperimentalFeaturesOn: MutableState<Boolean>
 ) {
     private val retrofit = Web.getRetrofit()
 
@@ -59,14 +61,17 @@ class ChatState(
 
     val snackbarHost = SnackbarHostState()
 
+    private val settings = DataStoreHelper(context.settingsDataStore)
+
     init {
         scope.launch {
-            model.value = context.settingsDataStore.data.map {
-                it[stringPreferencesKey(Constants.API_MODEL)]
-            }.firstOrNull() ?: Constants.DEFAULT_API_MODEL
+            model.value = settings.getString(Constants.API_MODEL) ?: Constants.DEFAULT_API_MODEL
 
             if (historyId.value != null && historyId.value?.toLong() != -1L)
                 handleHistoryLoading()
+
+            isExperimentalFeaturesOn.value =
+                settings.getBool(Constants.EXPERIMENTAL_FEATURES_STATE) ?: false
         }
     }
 
@@ -104,9 +109,10 @@ class ChatState(
         } catch (e: Exception) {
             handleError(e)
             null
+        } finally {
+            isWaitingForResponse.value = false
+            isInputAllowed = true
         }
-        isWaitingForResponse.value = false
-        isInputAllowed = true
         if (output != null) {
             updateChat(output.choices.first().message)
             if (chat.value.size > 3)
@@ -128,6 +134,7 @@ class ChatState(
 
     private fun resetInput() {
         this.chatInput.value = ""
+        this.chatInputSuggestion.value = ""
         focusManager.clearFocus()
     }
 
@@ -212,11 +219,26 @@ class ChatState(
             }
         }
     }
+
+    suspend fun suggestInput() {
+        chatInputSuggestion.value = try {
+            Web.getRetrofit().apiOf<APIs.EditsAPIs>().createEdit(
+                createEdit = CreateEdit(
+                    instruction = Constants.INPUT_EDIT_PROMPT,
+                    input = chatInput.value
+                )
+            ).choices.first().text
+        } catch (e: Exception) {
+            (e as? HttpException)?.message?.log()
+            ""
+        }
+    }
 }
 
 @Composable
 fun rememberChatState(
     chatInput: MutableState<String> = rememberSaveable { mutableStateOf("") },
+    chatInputSuggestion: MutableState<String> = rememberSaveable { mutableStateOf("") },
     chat: MutableState<List<Chat>> = rememberSaveable { mutableStateOf(listOf()) },
     model: MutableState<String> = rememberSaveable { mutableStateOf(Constants.DEFAULT_API_MODEL) },
     title: MutableState<String> = rememberSaveable { mutableStateOf("") },
@@ -225,9 +247,11 @@ fun rememberChatState(
     historyId: MutableState<String?> = rememberSaveable { mutableStateOf(null) },
     context: Context = LocalContext.current,
     focusManager: FocusManager = LocalFocusManager.current,
-    scope: LifecycleCoroutineScope = LocalLifecycleOwner.current.lifecycleScope
+    scope: LifecycleCoroutineScope = LocalLifecycleOwner.current.lifecycleScope,
+    isExperimentalFeaturesOn: MutableState<Boolean> = rememberSaveable { mutableStateOf(false) }
 ) = remember(
     chatInput,
+    chatInputSuggestion,
     chat,
     model,
     title,
@@ -236,10 +260,12 @@ fun rememberChatState(
     historyId,
     context,
     focusManager,
-    scope
+    scope,
+    isExperimentalFeaturesOn
 ) {
     ChatState(
         chatInput,
+        chatInputSuggestion,
         chat,
         model,
         title,
@@ -248,6 +274,7 @@ fun rememberChatState(
         historyId,
         context,
         focusManager,
-        scope
+        scope,
+        isExperimentalFeaturesOn
     )
 }
