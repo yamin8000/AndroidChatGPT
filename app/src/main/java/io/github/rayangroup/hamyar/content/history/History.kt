@@ -33,6 +33,7 @@ fun HistoryContent(
     onItemClick: (Long) -> Unit
 ) {
     val state = rememberHistoryState()
+    val hapticFeedback = LocalHapticFeedback.current
 
     ScaffoldWithTitle(
         title = stringResource(id = R.string.chat_history),
@@ -48,7 +49,10 @@ fun HistoryContent(
                                 title = it.title,
                                 date = it.date,
                                 onClick = { onItemClick(it.id) },
-                                onDelete = { state.delete(it.id) },
+                                onDelete = {
+                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    state.delete(it.id)
+                                },
                                 onEdit = { title ->
                                     state.edit(
                                         id = it.id,
