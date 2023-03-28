@@ -24,7 +24,7 @@ class HistoryState(
         history.value = getAllHistories()
     }
 
-    private suspend fun getAllHistories() = db.historyDao().getAll().reversed()
+    private suspend fun getAllHistories() = db.historyDao().getAll().sortedByDescending { it.date }
 
     fun edit(
         id: Long,

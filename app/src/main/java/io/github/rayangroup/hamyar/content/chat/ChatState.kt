@@ -63,6 +63,8 @@ class ChatState(
 
     private val settings = DataStoreHelper(context.settingsDataStore)
 
+    private var historyChat = listOf<Chat>()
+
     init {
         scope.launch {
             model.value = settings.getString(Constants.API_MODEL) ?: Constants.DEFAULT_API_MODEL
@@ -80,6 +82,7 @@ class ChatState(
         isUpdatable = true
         historyId.value?.let {
             chat.value = loadFromHistory(it.toLong())
+            historyChat = chat.value
             title.value = db.historyDao().getById(it.toLong())?.title ?: ""
         }
     }
@@ -140,13 +143,49 @@ class ChatState(
 
     suspend fun handleHistorySaving() {
         if (chat.value.isNotEmpty()) {
-            if (isSaveable) saveToHistory()
-            if (isUpdatable) updateHistory()
+            if (isSaveable)
+                saveToHistory()
+            if (isUpdatable && chat.value.size > historyChat.size)
+                updateHistory()
         }
     }
 
-    private fun updateHistory() {
+    private suspend fun updateHistory() {
+        historyId.value?.toLong()?.let { id ->
+            db.historyDao().getById(id)?.let { history ->
+                updateChatHistoryTitle(history)
+                updateChatHistoryItems(id)
+            }
+        }
+    }
 
+    private suspend fun updateChatHistoryItems(
+        id: Long
+    ) {
+        chat.value.takeLast(chat.value.size - historyChat.size).forEach { newChat ->
+            updateSingleChatHistoryItem(newChat, id)
+        }
+    }
+
+    private suspend fun updateSingleChatHistoryItem(
+        newChat: Chat,
+        id: Long
+    ) {
+        db.historyItemDao().insert(
+            HistoryItemEntity(
+                content = newChat.content,
+                owner = ChatBubbleOwner.of(newChat.role),
+                historyId = id
+            )
+        )
+    }
+
+    private suspend fun updateChatHistoryTitle(
+        history: HistoryEntity
+    ) {
+        db.historyDao().update(
+            history.copy(title = title.value, date = DateTimeUtils.zonedNow())
+        )
     }
 
     private suspend fun saveToHistory() {
