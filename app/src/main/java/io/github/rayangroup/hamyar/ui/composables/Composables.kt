@@ -481,7 +481,9 @@ fun LetterSpacedPersianText(
                 append(current)
                 val next = text.getOrNull(i + 1)
                 if (current != null && next != null) {
-                    if (totalCursive.contains(current) && totalCursive.contains(next)) {
+                    if (totalCursive.contains(current) && totalCursive.contains(next) ||
+                        totalCursive.contains(current) && finalCursive.contains(next)
+                    ) {
                         append('ـ')
                     }
                     append(next)
