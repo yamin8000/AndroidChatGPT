@@ -28,8 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -406,9 +406,50 @@ fun PersianText(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current
 ) {
+    PersianText(
+        text = AnnotatedString(text),
+        modifier = modifier,
+        color = color,
+        fontSize = fontSize,
+        fontStyle = fontStyle,
+        fontWeight = fontWeight,
+        fontFamily = fontFamily,
+        letterSpacing = letterSpacing,
+        textDecoration = textDecoration,
+        textAlign = textAlign,
+        lineHeight = lineHeight,
+        overflow = overflow,
+        softWrap = softWrap,
+        maxLines = maxLines,
+        onTextLayout = onTextLayout,
+        style = style
+    )
+}
+
+@Composable
+fun PersianText(
+    text: AnnotatedString,
+    modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified,
+    fontSize: TextUnit = 14.sp,
+    fontStyle: FontStyle? = null,
+    fontWeight: FontWeight? = null,
+    fontFamily: FontFamily? = null,
+    letterSpacing: TextUnit = TextUnit.Unspecified,
+    textDecoration: TextDecoration? = null,
+    textAlign: TextAlign? = null,
+    lineHeight: TextUnit = TextUnit.Unspecified,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    style: TextStyle = LocalTextStyle.current
+) {
+    val isPersian = remember { Regex("[ء-ی]") }
+
     var localStyle = style
     var localFontFamily = fontFamily
-    if (LocalContext.current.isLocalePersian(text)) {
+    if (LocalContext.current.isLocalePersian(text.text) && isPersian.containsMatchIn(text)) {
         localFontFamily = Samim
         localStyle = LocalTextStyle.current.copy(textDirection = TextDirection.Rtl)
     }
@@ -467,33 +508,115 @@ fun SwitchWithText(
     )
 }
 
+@Suppress("SpellCheckingInspection")
 @Composable
 fun LetterSpacedPersianText(
-    text: String = "سلام"
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified,
+    fontSize: TextUnit = 14.sp,
+    fontStyle: FontStyle? = null,
+    fontWeight: FontWeight? = null,
+    fontFamily: FontFamily? = null,
+    letterSpacing: TextUnit = TextUnit.Unspecified,
+    textDecoration: TextDecoration? = null,
+    textAlign: TextAlign? = null,
+    lineHeight: TextUnit = TextUnit.Unspecified,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    style: TextStyle = LocalTextStyle.current
 ) {
-    if (text.length != 1) {
-        val totalCursive = "ئبپتثجچحخسشصضطظعغفقکگلمنهی"
-        val finalCursive = "أؤدذرزژو"
-        val newText = buildString {
-            var i = 0
-            while (i < text.length) {
-                val current = text.getOrNull(i)
-                append(current)
-                val next = text.getOrNull(i + 1)
-                if (current != null && next != null) {
-                    if (totalCursive.contains(current) && totalCursive.contains(next) ||
-                        totalCursive.contains(current) && finalCursive.contains(next)
-                    ) {
-                        append('ـ')
-                    }
-                    append(next)
-                    i += 2
-                } else {
+    val isPersian = remember { Regex("[ء-ی]") }
+    val keshides = letterSpacing.value.toInt()
+    val keshidesText = buildAnnotatedString { repeat(keshides) { append('ـ') } }
+    val spacesText = buildAnnotatedString {
+        repeat(keshides) {
+            withStyle(style = SpanStyle(fontSize = fontSize.div(50 * letterSpacing.value))) {
+                append(' ')
+            }
+        }
+    }
+    if (isPersian.containsMatchIn(text)) {
+        if (text.length != 1) {
+            val totalCursive = "ئبپتثجچحخسشصضطظعغفقکگلمنهی"
+            val finalCursive = "أؤدذرزژو"
+            val newText = buildAnnotatedString {
+                var i = 0
+                while (i < text.length) {
+                    val current = text[i]
                     append(current)
+                    val next = text.getOrNull(i + 1)
+                    if (next != null) {
+                        if (totalCursive.contains(current) && totalCursive.contains(next) ||
+                            totalCursive.contains(current) && finalCursive.contains(next)
+                        ) {
+                            append(keshidesText)
+                        }
+                        if (current !in totalCursive && current !in finalCursive && next !in totalCursive && next !in finalCursive) {
+                            append(spacesText)
+                        }
+                    }
                     i++
                 }
             }
+            PersianText(
+                newText,
+                modifier,
+                color,
+                fontSize,
+                fontStyle,
+                fontWeight,
+                fontFamily,
+                letterSpacing,
+                textDecoration,
+                textAlign,
+                lineHeight,
+                overflow,
+                softWrap,
+                maxLines,
+                onTextLayout,
+                style
+            )
+        } else {
+            PersianText(
+                text = text,
+                modifier = modifier,
+                color = color,
+                fontSize = fontSize,
+                fontStyle = fontStyle,
+                fontWeight = fontWeight,
+                fontFamily = fontFamily,
+                letterSpacing = letterSpacing,
+                textDecoration = textDecoration,
+                textAlign = textAlign,
+                lineHeight = lineHeight,
+                overflow = overflow,
+                softWrap = softWrap,
+                maxLines = maxLines,
+                onTextLayout = onTextLayout,
+                style = style
+            )
         }
-        Text(newText)
-    } else Text(text)
+    } else {
+        Text(
+            text = text,
+            modifier = modifier,
+            color = color,
+            fontSize = fontSize,
+            fontStyle = fontStyle,
+            fontWeight = fontWeight,
+            fontFamily = fontFamily,
+            letterSpacing = letterSpacing,
+            textDecoration = textDecoration,
+            textAlign = textAlign,
+            lineHeight = lineHeight,
+            overflow = overflow,
+            softWrap = softWrap,
+            maxLines = maxLines,
+            onTextLayout = onTextLayout,
+            style = style
+        )
+    }
 }
