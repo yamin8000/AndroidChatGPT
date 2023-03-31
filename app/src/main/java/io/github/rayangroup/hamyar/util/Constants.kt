@@ -20,7 +20,7 @@ object Constants {
 
     val EDIT_MODELS = listOf("text-davinci-edit-001", "code-davinci-edit-001")
 
-    val PERSIAN_REGEX = Regex("""([\u0621-\u0659]+|[\u0670-\u06cc]+)+""")
+    val PERSIAN_REGEX = Regex("[\\u0621-\\u064a]+")
 
     const val TITLE_PREDICTION_PROMPT =
         "find a title for this conversion:\n"

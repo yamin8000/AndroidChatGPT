@@ -37,7 +37,10 @@ import io.github.rayangroup.hamyar.ui.animation.AnimatedDots
 import io.github.rayangroup.hamyar.ui.composables.*
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 fun ChatContent(
     historyId: String?,
@@ -113,7 +116,7 @@ fun ChatContent(
                 state = listState,
                 modifier = Modifier.fillMaxSize()
             ) {
-                item {
+                stickyHeader {
                     AnimatedVisibility(
                         visible = !state.isOnline.value,
                         enter = slideInVertically() + fadeIn(),
@@ -240,7 +243,8 @@ fun ChatBubble(
                 modifier = Modifier.padding(8.dp),
                 text = content.trim(),
                 overflow = TextOverflow.Ellipsis,
-                maxLines = if (isExpanded) Int.MAX_VALUE else 10
+                maxLines = if (isExpanded) Int.MAX_VALUE else 10,
+                overrideDirection = true
             )
         }
     )
@@ -274,7 +278,7 @@ fun ChatBubble(
         )
     }
 
-    val arrangement = if (owner == ChatBubbleOwner.User) Arrangement.Start else Arrangement.End
+    val arrangement = if (owner == ChatBubbleOwner.User) Arrangement.End else Arrangement.Start
 
     Row(
         modifier = Modifier.fillMaxWidth(),

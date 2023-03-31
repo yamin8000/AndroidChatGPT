@@ -17,15 +17,13 @@ import androidx.compose.material.icons.twotone.ArrowBack
 import androidx.compose.material.icons.twotone.ArrowDropDownCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.*
@@ -37,7 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -354,37 +352,47 @@ fun PersianTextField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    shape: Shape = TextFieldDefaults.filledShape
+    shape: Shape = TextFieldDefaults.filledShape,
+    overrideDirection: Boolean = true
 ) {
+    val containsPersian = Constants.PERSIAN_REGEX.containsMatchIn(value)
+
+    val direction = if (overrideDirection && value.isNotBlank()) {
+        if (containsPersian) LayoutDirection.Rtl
+        else LayoutDirection.Ltr
+    } else LocalLayoutDirection.current
+
     var localTextStyle = textStyle
-    if (LocalContext.current.isLocalePersian(value) || Constants.PERSIAN_REGEX.containsMatchIn(value)) {
+    if (LocalContext.current.isLocalePersian(value) && containsPersian) {
         localTextStyle = LocalTextStyle.current.copy(textDirection = TextDirection.Rtl)
         localTextStyle = localTextStyle.copy(fontFamily = Samim)
     }
-    TextField(
-        value,
-        onValueChange,
-        modifier,
-        enabled,
-        readOnly,
-        localTextStyle,
-        label,
-        placeholder,
-        leadingIcon,
-        trailingIcon,
-        prefix,
-        suffix,
-        supportingText,
-        isError,
-        visualTransformation,
-        keyboardOptions,
-        keyboardActions,
-        singleLine,
-        maxLines,
-        minLines,
-        interactionSource,
-        shape
-    )
+    CompositionLocalProvider(LocalLayoutDirection provides direction) {
+        TextField(
+            value,
+            onValueChange,
+            modifier,
+            enabled,
+            readOnly,
+            localTextStyle,
+            label,
+            placeholder,
+            leadingIcon,
+            trailingIcon,
+            prefix,
+            suffix,
+            supportingText,
+            isError,
+            visualTransformation,
+            keyboardOptions,
+            keyboardActions,
+            singleLine,
+            maxLines,
+            minLines,
+            interactionSource,
+            shape
+        )
+    }
 }
 
 @Composable
@@ -404,7 +412,8 @@ fun PersianText(
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
     onTextLayout: (TextLayoutResult) -> Unit = {},
-    style: TextStyle = LocalTextStyle.current
+    style: TextStyle = LocalTextStyle.current,
+    overrideDirection: Boolean = true
 ) {
     PersianText(
         text = AnnotatedString(text),
@@ -422,7 +431,8 @@ fun PersianText(
         softWrap = softWrap,
         maxLines = maxLines,
         onTextLayout = onTextLayout,
-        style = style
+        style = style,
+        overrideDirection = overrideDirection
     )
 }
 
@@ -443,72 +453,45 @@ fun PersianText(
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
     onTextLayout: (TextLayoutResult) -> Unit = {},
-    style: TextStyle = LocalTextStyle.current
+    style: TextStyle = LocalTextStyle.current,
+    overrideDirection: Boolean = true
 ) {
-    val isPersian = remember { Regex("[ء-ی]") }
+    val containsPersian = Constants.PERSIAN_REGEX.containsMatchIn(text)
+
+    val direction = if (overrideDirection) {
+        if (containsPersian) LayoutDirection.Rtl
+        else LayoutDirection.Ltr
+    } else LocalLayoutDirection.current
 
     var localStyle = style
     var localFontFamily = fontFamily
-    if (LocalContext.current.isLocalePersian(text.text) && isPersian.containsMatchIn(text)) {
+    if (LocalContext.current.isLocalePersian(text.text) && containsPersian) {
         localFontFamily = Samim
         localStyle = LocalTextStyle.current.copy(textDirection = TextDirection.Rtl)
     }
-    Text(
-        text = text,
-        modifier = modifier,
-        color = color,
-        fontSize = fontSize,
-        fontStyle = fontStyle,
-        fontWeight = fontWeight,
-        fontFamily = localFontFamily,
-        letterSpacing = letterSpacing,
-        textDecoration = textDecoration,
-        textAlign = textAlign,
-        lineHeight = lineHeight,
-        overflow = overflow,
-        softWrap = softWrap,
-        maxLines = maxLines,
-        onTextLayout = onTextLayout,
-        style = localStyle
-    )
+    CompositionLocalProvider(LocalLayoutDirection provides direction) {
+        Text(
+            text = text,
+            modifier = modifier,
+            color = color,
+            fontSize = fontSize,
+            fontStyle = fontStyle,
+            fontWeight = fontWeight,
+            fontFamily = localFontFamily,
+            letterSpacing = letterSpacing,
+            textDecoration = textDecoration,
+            textAlign = textAlign,
+            lineHeight = lineHeight,
+            overflow = overflow,
+            softWrap = softWrap,
+            maxLines = maxLines,
+            onTextLayout = onTextLayout,
+            style = localStyle
+        )
+    }
 }
 
-@Composable
-fun SwitchWithText(
-    caption: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    val hapticFeedback = LocalHapticFeedback.current
-    val internalChecked = rememberSaveable { mutableStateOf(checked) }
-    Box(
-        modifier = Modifier
-            .padding(4.dp)
-            .clickable(
-                role = Role.Switch,
-                onClick = {
-                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                    internalChecked.value = !internalChecked.value
-                    onCheckedChange(internalChecked.value)
-                }
-            ),
-        content = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                PersianText(caption)
-                Switch(
-                    checked = checked,
-                    onCheckedChange = null
-                )
-            }
-        }
-    )
-}
-
-@Suppress("SpellCheckingInspection")
+@Suppress("SpellCheckingInspection", "unused")
 @Composable
 fun LetterSpacedPersianText(
     text: String,
