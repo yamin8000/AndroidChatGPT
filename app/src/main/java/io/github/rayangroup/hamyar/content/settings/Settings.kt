@@ -57,12 +57,6 @@ fun SettingsContent(
                     onApiModelChange = { state.scope.launch { state.updateApiModel(it) } }
                 )
             }
-            item {
-                ExperimentalFeaturesSetting(
-                    isChecked = state.isExperimentalFeaturesOn.value,
-                    onChecked = {state.scope.launch { state.updateExperimentalFeatureState(it) }}
-                )
-            }
         }
     }
 }
@@ -182,27 +176,6 @@ fun ApiModelSetting(
                     }
                 )
             }
-        }
-    )
-}
-
-@Composable
-fun ExperimentalFeaturesSetting(
-    isChecked: Boolean,
-    onChecked: (Boolean) -> Unit
-) {
-    val experimental = stringResource(R.string.experimental_features)
-    SettingsItemCard(
-        title = experimental,
-        content = {
-            SettingsItem(onClick = { /*ignored*/ }) {
-                SwitchWithText(
-                    caption = experimental,
-                    checked = isChecked,
-                    onCheckedChange = onChecked
-                )
-            }
-            PersianText(stringResource(R.string.experimental_features_notice))
         }
     )
 }

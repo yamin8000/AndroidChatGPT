@@ -29,7 +29,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -161,10 +160,7 @@ fun ChatContent(
                     if (it.isNotBlank() && it.contains(Regex("\\s+")))
                         state.scope.launch { state.suggestInput() }
                     else state.chatInputSuggestion.value = ""
-                },
-                visualTransformation = if (state.isExperimentalFeaturesOn.value)
-                    MyMaskTransformation(state.chatInputSuggestion.value)
-                else VisualTransformation.None
+                }
             )
         }
     )
@@ -175,12 +171,10 @@ private fun UserInput(
     isInputAllowed: Boolean,
     chatInput: String,
     onChatInputChange: (String) -> Unit,
-    onNewChatInputSubmit: () -> Unit,
-    visualTransformation: VisualTransformation
+    onNewChatInputSubmit: () -> Unit
 ) {
     PersianTextField(
         enabled = isInputAllowed,
-        visualTransformation = visualTransformation,
         label = { PersianText(text = stringResource(R.string.chat_input)) },
         value = chatInput,
         onValueChange = { onChatInputChange(it) },

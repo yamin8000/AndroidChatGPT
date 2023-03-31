@@ -8,7 +8,6 @@ object Constants {
     const val LOG_TAG = "<==>"
 
     const val THEME = "theme"
-    const val EXPERIMENTAL_FEATURES_STATE = "experimental_features_state"
 
     const val API_MODEL = "api_model"
     const val API_MODELS = "api_models"

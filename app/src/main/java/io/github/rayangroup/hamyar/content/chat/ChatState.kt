@@ -7,9 +7,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.lifecycleScope
@@ -42,9 +40,7 @@ class ChatState(
     val isWaitingForResponse: MutableState<Boolean>,
     private val historyId: MutableState<String?>,
     context: Context,
-    private val focusManager: FocusManager,
-    val scope: LifecycleCoroutineScope,
-    val isExperimentalFeaturesOn: MutableState<Boolean>
+    val scope: LifecycleCoroutineScope
 ) {
     private val retrofit = Web.getRetrofit()
 
@@ -71,9 +67,6 @@ class ChatState(
 
             if (historyId.value != null && historyId.value?.toLong() != -1L)
                 handleHistoryLoading()
-
-            isExperimentalFeaturesOn.value =
-                settings.getBool(Constants.EXPERIMENTAL_FEATURES_STATE) ?: false
         }
     }
 
@@ -138,7 +131,6 @@ class ChatState(
     private fun resetInput() {
         this.chatInput.value = ""
         this.chatInputSuggestion.value = ""
-        focusManager.clearFocus()
     }
 
     suspend fun handleHistorySaving() {
@@ -285,9 +277,7 @@ fun rememberChatState(
     isWaitingForResponse: MutableState<Boolean> = rememberSaveable { mutableStateOf(false) },
     historyId: MutableState<String?> = rememberSaveable { mutableStateOf(null) },
     context: Context = LocalContext.current,
-    focusManager: FocusManager = LocalFocusManager.current,
-    scope: LifecycleCoroutineScope = LocalLifecycleOwner.current.lifecycleScope,
-    isExperimentalFeaturesOn: MutableState<Boolean> = rememberSaveable { mutableStateOf(false) }
+    scope: LifecycleCoroutineScope = LocalLifecycleOwner.current.lifecycleScope
 ) = remember(
     chatInput,
     chatInputSuggestion,
@@ -298,9 +288,7 @@ fun rememberChatState(
     isWaitingForResponse,
     historyId,
     context,
-    focusManager,
-    scope,
-    isExperimentalFeaturesOn
+    scope
 ) {
     ChatState(
         chatInput,
@@ -312,8 +300,6 @@ fun rememberChatState(
         isWaitingForResponse,
         historyId,
         context,
-        focusManager,
-        scope,
-        isExperimentalFeaturesOn
+        scope
     )
 }
