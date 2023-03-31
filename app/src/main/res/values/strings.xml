@@ -26,15 +26,13 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="delete_confirm">Are you sure you want to delete this item?</string>
-    <string name="confirm">Confirm</string>
+    <string name="accept">Accept</string>
     <string name="cancel">Cancel</string>
     <string name="history_title">History Title</string>
     <string name="home">Home</string>
     <string name="about">About</string>
     <string name="chat_with_me">Chat with me</string>
     <string name="image_generation">Image Generation</string>
-    <string name="experimental_features">Experimental Features</string>
-    <string name="experimental_features_notice">Enabling Experimental Features can lead to crashes.</string>
-    <string name="about_text">This application, which was developed in the software engineering department of the Vira Rayan Caspin Technology Development Company, is implemented in two parts: Dialogue and Images Generation.\nIn the Dialogue section, the user has the possibility to talk with the artificial intelligence server of OpenAI, which is known as CHAT-GPT.\nIn the Images Generation section, the user provides his description of the desired image and the application displays four images related to the description.</string>
+    <string name="about_text">This application, which was developed in the software engineering department of the Vira Rayan Caspian Technology Development Company, is implemented in two parts: Dialogue and Images Generation.\nIn the Dialogue section, the user has the possibility to talk with the artificial intelligence server of OpenAI, which is known as CHAT-GPT.\nIn the Images Generation section, the user provides his description of the desired image and the application displays four images related to the description.</string>
     <string name="image_input_placeholder">Enter your desired image description.</string>
 </resources>

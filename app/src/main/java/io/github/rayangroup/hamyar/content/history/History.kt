@@ -277,7 +277,7 @@ fun EditDialog(
                             )
                         ) {
                             Button(
-                                content = { PersianText(stringResource(R.string.confirm)) },
+                                content = { PersianText(stringResource(R.string.accept)) },
                                 onClick = {
                                     onConfirm(newTitle)
                                     onDismiss()
