@@ -10,9 +10,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import io.github.rayangroup.hamyar.ad.AdConstants
 import io.github.rayangroup.hamyar.ad.TapsellAdContent
 import io.github.rayangroup.hamyar.content.ThemeSetting
@@ -117,9 +119,13 @@ internal fun MainContent(
                         })
                 }
 
-                composable("${Nav.Routes.chat}/{${Nav.Args.historyId}}") {
+                composable(
+                    route = "${Nav.Routes.chat}/{${Nav.Args.historyId}}",
+                    arguments = listOf(navArgument(Nav.Args.historyId) { type = NavType.LongType })
+                ) {
+                    val id = it.arguments?.getLong(Nav.Args.historyId) ?: -1L
                     ChatContent(
-                        historyId = it.arguments?.getString(Nav.Args.historyId),
+                        historyId = id,
                         onBackClick = { navController.popBackStack() },
                         onSettingsClick = { navController.navigate(Nav.Routes.settings) }
                     )

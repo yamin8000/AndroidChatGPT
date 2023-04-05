@@ -17,8 +17,6 @@ import io.github.rayangroup.hamyar.db.entity.HistoryEntity
 import io.github.rayangroup.hamyar.db.entity.HistoryItemEntity
 import io.github.rayangroup.hamyar.model.Chat
 import io.github.rayangroup.hamyar.model.request.CreateChatCompletion
-import io.github.rayangroup.hamyar.model.request.CreateEdit
-import io.github.rayangroup.hamyar.model.response.ChatCompletion
 import io.github.rayangroup.hamyar.util.Constants
 import io.github.rayangroup.hamyar.util.Constants.db
 import io.github.rayangroup.hamyar.util.DataStoreHelper
@@ -28,17 +26,16 @@ import io.github.rayangroup.hamyar.web.APIs
 import io.github.rayangroup.hamyar.web.Web
 import io.github.rayangroup.hamyar.web.Web.apiOf
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
+import kotlinx.coroutines.withContext
 
 class ChatState(
     val chatInput: MutableState<String>,
-    val chatInputSuggestion: MutableState<String>,
     val chat: MutableState<List<Chat>>,
     val model: MutableState<String>,
     val title: MutableState<String>,
     val isOnline: MutableState<Boolean>,
     val isWaitingForResponse: MutableState<Boolean>,
-    private val historyId: MutableState<String?>,
+    private val historyId: MutableState<Long>,
     context: Context,
     val scope: LifecycleCoroutineScope
 ) {
@@ -48,8 +45,6 @@ class ChatState(
 
     private val isModelSupported: Boolean
         get() = model.value in Constants.CHAT_MODELS
-
-    private var isSaveable = true
 
     private var isUpdatable = false
 
@@ -65,146 +60,100 @@ class ChatState(
         scope.launch {
             model.value = settings.getString(Constants.API_MODEL) ?: Constants.DEFAULT_API_MODEL
 
-            if (historyId.value != null && historyId.value?.toLong() != -1L)
+            if (historyId.value != -1L)
                 handleHistoryLoading()
         }
     }
 
+    private suspend fun createNewHistoryEntity() {
+        historyId.value = db.historyDao().insert(
+            HistoryEntity(title.value, DateTimeUtils.zonedNow())
+        )
+    }
+
     private suspend fun handleHistoryLoading() {
-        isSaveable = false
         isUpdatable = true
-        historyId.value?.let {
-            chat.value = loadFromHistory(it.toLong())
-            historyChat = chat.value
-            title.value = db.historyDao().getById(it.toLong())?.title ?: ""
-        }
+        chat.value = loadFromHistory(historyId.value)
+        historyChat = chat.value
+        title.value = db.historyDao().getById(historyId.value)?.title ?: ""
     }
 
-    suspend fun newChatInput(
+    suspend fun newChatHandler(
         chatInput: String
     ) {
-        if (isModelSupported) createNewChatInputRequest(chatInput)
-        else snackbarHost.showSnackbar(modelNotSupported)
+        if (isModelSupported) {
+            val newChat = Chat(role = "user", content = chatInput.trim())
+            chat.value += newChat
+            if (chat.value.size == 1)
+                createNewHistoryEntity()
+            addChatItemToHistory(newChat, historyId.value)
+
+            resetInput()
+            changeInputAllowance(false)
+            val aiCompletion = chatCompletionRequest()
+            changeInputAllowance(true)
+
+            if (aiCompletion != null) {
+                val newAiChat = aiCompletion.choices.first().message
+                chat.value += newAiChat
+                if (chat.value.size > 3)
+                    title.value = createHistoryTitle(predictTitle())
+                addChatItemToHistory(newAiChat, historyId.value)
+                updateChatHistoryTitle()
+            }
+        } else snackbarHost.showSnackbar(modelNotSupported)
     }
 
-    private suspend fun createNewChatInputRequest(
-        chatInput: String
-    ) {
-        resetInput()
-        chat.value = chat.value + Chat(role = "user", content = chatInput.trim())
-
-        isWaitingForResponse.value = true
-        isInputAllowed = false
-        val output = try {
-            retrofit.apiOf<APIs.ChatCompletionsAPIs>().createChatCompletions(
-                CreateChatCompletion(
-                    model = model.value,
-                    messages = chat.value
-                )
+    private suspend fun chatCompletionRequest() = try {
+        retrofit.apiOf<APIs.ChatCompletionsAPIs>().createChatCompletions(
+            CreateChatCompletion(
+                model = model.value,
+                messages = chat.value
             )
-        } catch (e: Exception) {
-            handleError(e)
-            null
-        } finally {
-            isWaitingForResponse.value = false
-            isInputAllowed = true
-        }
-        if (output != null) {
-            updateChat(output.choices.first().message)
-            if (chat.value.size > 3)
-                predictTitle()
-        }
-    }
-
-    private fun handleError(
-        exception: Exception
-    ) {
-        exception.stackTraceToString().log()
-    }
-
-    private fun updateChat(
-        chatItem: Chat
-    ) {
-        chat.value = chat.value + chatItem
+        )
+    } catch (e: Exception) {
+        e.stackTraceToString().log()
+        null
     }
 
     private fun resetInput() {
         this.chatInput.value = ""
-        this.chatInputSuggestion.value = ""
     }
 
-    suspend fun handleHistorySaving() {
-        if (chat.value.isNotEmpty()) {
-            if (isSaveable)
-                saveToHistory()
-            if (isUpdatable && chat.value.size > historyChat.size)
-                updateHistory()
-        }
-    }
-
-    private suspend fun updateHistory() {
-        historyId.value?.toLong()?.let { id ->
-            db.historyDao().getById(id)?.let { history ->
-                updateChatHistoryTitle(history)
-                updateChatHistoryItems(id)
-            }
-        }
-    }
-
-    private suspend fun updateChatHistoryItems(
-        id: Long
+    private fun changeInputAllowance(
+        isAllowed: Boolean
     ) {
-        chat.value.takeLast(chat.value.size - historyChat.size).forEach { newChat ->
-            updateSingleChatHistoryItem(newChat, id)
-        }
+        isWaitingForResponse.value = !isAllowed
+        isInputAllowed = isAllowed
     }
 
-    private suspend fun updateSingleChatHistoryItem(
-        newChat: Chat,
+    private suspend fun addChatItemToHistory(
+        chat: Chat,
         id: Long
-    ) {
-        db.historyItemDao().insert(
+    ): Long {
+        updateChatHistoryTitle()
+        return db.historyItemDao().insert(
             HistoryItemEntity(
-                content = newChat.content,
-                owner = ChatBubbleOwner.of(newChat.role),
+                content = chat.content,
+                owner = ChatBubbleOwner.of(chat.role),
                 historyId = id
             )
         )
     }
 
-    private suspend fun updateChatHistoryTitle(
-        history: HistoryEntity
-    ) {
-        db.historyDao().update(
-            history.copy(title = title.value, date = DateTimeUtils.zonedNow())
-        )
-    }
-
-    private suspend fun saveToHistory() {
-        val historyTitle = createHistoryTitle(title.value)
-        val history = HistoryEntity(title = historyTitle, date = DateTimeUtils.zonedNow())
-        val id = db.historyDao().insert(history)
-        chat.value.forEach { chatItem -> addItemToHistory(chatItem, id) }
-    }
-
-    private suspend fun addItemToHistory(
-        chatItem: Chat,
-        id: Long
-    ) {
-        val item = HistoryItemEntity(
-            content = chatItem.content,
-            owner = ChatBubbleOwner.of(chatItem.role),
-            historyId = id
-        )
-        db.historyItemDao().insert(item)
+    private suspend fun updateChatHistoryTitle(): Int? {
+        val dao = db.historyDao()
+        return dao
+            .getById(historyId.value)?.let { historyEntity ->
+                dao.update(
+                    historyEntity.copy(title = title.value, date = DateTimeUtils.zonedNow())
+                )
+            }
     }
 
     private fun createHistoryTitle(
         predictedTitle: String
-    ): String {
-        val first = chat.value.first().content
-        return predictedTitle.ifBlank { first }
-    }
+    ): String = predictedTitle.ifBlank { chat.value.first().content }
 
     private suspend fun loadFromHistory(
         historyId: Long
@@ -212,10 +161,9 @@ class ChatState(
         .getByParam("historyId", historyId)
         .map { Chat(it.owner.toString().lowercase(), it.content) }
 
-    private suspend fun predictTitle() {
-        var titlePrediction: ChatCompletion? = null
-        try {
-            titlePrediction = Web.getRetrofit()
+    private suspend fun predictTitle() = withContext(scope.coroutineContext) {
+        return@withContext try {
+            Web.getRetrofit()
                 .apiOf<APIs.ChatCompletionsAPIs>()
                 .createChatCompletions(
                     CreateChatCompletion(
@@ -227,17 +175,10 @@ class ChatState(
                             )
                         )
                     )
-                )
-        } catch (e: Exception) {
-            //ignored
-        }
-        if (titlePrediction != null) {
-            title.value = titlePrediction.choices
-                .first()
-                .message
-                .content
-                .trim()
+                ).choices.first().message.content.trim()
                 .replace("\\n", "")
+        } catch (e: Exception) {
+            chat.value.first().content
         }
     }
 
@@ -250,37 +191,21 @@ class ChatState(
             }
         }
     }
-
-    suspend fun suggestInput() {
-        chatInputSuggestion.value = try {
-            Web.getRetrofit().apiOf<APIs.EditsAPIs>().createEdit(
-                createEdit = CreateEdit(
-                    instruction = Constants.INPUT_EDIT_PROMPT,
-                    input = chatInput.value
-                )
-            ).choices.first().text
-        } catch (e: Exception) {
-            (e as? HttpException)?.message?.log()
-            ""
-        }
-    }
 }
 
 @Composable
 fun rememberChatState(
     chatInput: MutableState<String> = rememberSaveable { mutableStateOf("") },
-    chatInputSuggestion: MutableState<String> = rememberSaveable { mutableStateOf("") },
     chat: MutableState<List<Chat>> = rememberSaveable { mutableStateOf(listOf()) },
     model: MutableState<String> = rememberSaveable { mutableStateOf(Constants.DEFAULT_API_MODEL) },
     title: MutableState<String> = rememberSaveable { mutableStateOf("") },
     isOnline: MutableState<Boolean> = rememberSaveable { mutableStateOf(true) },
     isWaitingForResponse: MutableState<Boolean> = rememberSaveable { mutableStateOf(false) },
-    historyId: MutableState<String?> = rememberSaveable { mutableStateOf(null) },
+    historyId: MutableState<Long> = rememberSaveable { mutableStateOf(-1L) },
     context: Context = LocalContext.current,
     scope: LifecycleCoroutineScope = LocalLifecycleOwner.current.lifecycleScope
 ) = remember(
     chatInput,
-    chatInputSuggestion,
     chat,
     model,
     title,
@@ -292,7 +217,6 @@ fun rememberChatState(
 ) {
     ChatState(
         chatInput,
-        chatInputSuggestion,
         chat,
         model,
         title,

@@ -43,7 +43,7 @@ import kotlinx.coroutines.launch
 )
 @Composable
 fun ChatContent(
-    historyId: String?,
+    historyId: Long,
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
@@ -68,7 +68,7 @@ fun ChatContent(
 
     BackHandler {
         state.scope.launch {
-            state.handleHistorySaving()
+            //state.handleHistorySaving()
             onBackClick()
         }
     }
@@ -85,7 +85,7 @@ fun ChatContent(
         },
         onBackClick = {
             state.scope.launch {
-                state.handleHistorySaving()
+                //state.handleHistorySaving()
                 onBackClick()
             }
         },
@@ -156,13 +156,13 @@ fun ChatContent(
             UserInput(
                 isInputAllowed = state.isInputAllowed,
                 chatInput = state.chatInput.value,
-                onNewChatInputSubmit = { state.scope.launch { state.newChatInput(state.chatInput.value) } },
+                onNewChatInputSubmit = { state.scope.launch { state.newChatHandler(state.chatInput.value) } },
                 onChatInputChange = {
                     state.chatInput.value = it
 
-                    if (it.isNotBlank() && it.contains(Regex("\\s+")))
+                    /*if (it.isNotBlank() && it.contains(Regex("\\s+")))
                         state.scope.launch { state.suggestInput() }
-                    else state.chatInputSuggestion.value = ""
+                    else state.chatInputSuggestion.value = ""*/
                 }
             )
         }
