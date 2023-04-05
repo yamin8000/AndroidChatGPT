@@ -13,8 +13,8 @@ android {
         applicationId "io.github.rayangroup.hamyar"
         minSdk 24
         targetSdk 33
-        versionCode 9
-        versionName "1.0.71"
+        versionCode 10
+        versionName "1.0.72"
         resourceConfigurations += ["fa", "en"]
         vectorDrawables {
             useSupportLibrary true
@@ -68,7 +68,7 @@ android {
 
 dependencies {
     //core android
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.2")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.7.0-alpha02")
     //compose
