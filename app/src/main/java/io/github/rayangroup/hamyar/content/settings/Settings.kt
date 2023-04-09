@@ -153,7 +153,7 @@ fun ApiModelSetting(
         title = dataSet,
         content = {
             SettingsItem(
-                onClick = { isShowingDialog = true },
+                onClick = { isShowingDialog = true && apiModels.isNotEmpty() },
                 content = {
                     Icon(imageVector = Icons.TwoTone.Dataset, contentDescription = dataSet)
                     PersianText(apiModel)
@@ -161,7 +161,8 @@ fun ApiModelSetting(
             )
             Button(
                 onClick = { onApiModelChange(Constants.CHAT_MODELS.first()) },
-                content = { PersianText(stringResource(R.string.change_it_to_default)) }
+                content = { PersianText(stringResource(R.string.change_it_to_default)) },
+                enabled = apiModels.isNotEmpty()
             )
             if (apiModel !in Constants.CHAT_MODELS) {
                 PersianText(

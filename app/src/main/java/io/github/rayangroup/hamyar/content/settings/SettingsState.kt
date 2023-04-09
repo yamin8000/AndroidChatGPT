@@ -14,6 +14,7 @@ import io.github.rayangroup.hamyar.content.ThemeSetting
 import io.github.rayangroup.hamyar.content.main.settingsDataStore
 import io.github.rayangroup.hamyar.util.Constants
 import io.github.rayangroup.hamyar.util.DataStoreHelper
+import io.github.rayangroup.hamyar.util.log
 import io.github.rayangroup.hamyar.web.APIs
 import io.github.rayangroup.hamyar.web.Web
 import io.github.rayangroup.hamyar.web.Web.apiOf
@@ -42,12 +43,16 @@ class SettingsState(
         }
     }
 
-    private suspend fun getModelsFromApi(): List<String> {
-        return Web.getRetrofit()
+    private suspend fun getModelsFromApi() = try {
+        Web.getRetrofit()
             .apiOf<APIs.ModelsAPIs>()
             .getAllModels()
             .data
             .map { it.id }
+    } catch (e: Exception) {
+        e.message?.log()
+        e.stackTraceToString().log()
+        listOf()
     }
 
     suspend fun updateThemeSetting(
