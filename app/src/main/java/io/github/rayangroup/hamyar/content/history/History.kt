@@ -119,7 +119,10 @@ fun HistoryItem(
                             text = stringResource(R.string.date),
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
-                        Text(date.toLocalDateTime().toIso().replace("T", " "))
+                        PersianText(
+                            text = date.toLocalDateTime().toIso().replace("T", "_"),
+                            forcePersianFont = true
+                        )
                     }
 
                     ItemDropDownMenu(

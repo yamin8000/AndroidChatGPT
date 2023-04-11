@@ -413,7 +413,8 @@ fun PersianText(
     maxLines: Int = Int.MAX_VALUE,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current,
-    overrideDirection: Boolean = true
+    overrideDirection: Boolean = true,
+    forcePersianFont: Boolean = false
 ) {
     PersianText(
         text = AnnotatedString(text),
@@ -432,7 +433,8 @@ fun PersianText(
         maxLines = maxLines,
         onTextLayout = onTextLayout,
         style = style,
-        overrideDirection = overrideDirection
+        overrideDirection = overrideDirection,
+        forcePersianFont = forcePersianFont
     )
 }
 
@@ -454,7 +456,8 @@ fun PersianText(
     maxLines: Int = Int.MAX_VALUE,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current,
-    overrideDirection: Boolean = true
+    overrideDirection: Boolean = true,
+    forcePersianFont: Boolean = true
 ) {
     val containsPersian = Constants.PERSIAN_REGEX.containsMatchIn(text)
 
@@ -465,7 +468,7 @@ fun PersianText(
 
     var localStyle = style
     var localFontFamily = fontFamily
-    if (LocalContext.current.isLocalePersian(text.text) && containsPersian) {
+    if ((LocalContext.current.isLocalePersian(text.text) && containsPersian) || forcePersianFont) {
         localFontFamily = Samim
         localStyle = LocalTextStyle.current.copy(textDirection = TextDirection.Rtl)
     }
