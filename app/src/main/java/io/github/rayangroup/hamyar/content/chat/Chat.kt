@@ -112,13 +112,15 @@ fun ChatContent(
                         enter = slideInVertically() + fadeIn(),
                         exit = slideOutVertically() + fadeOut()
                     ) {
-                        PersianText(
-                            text = stringResource(R.string.no_internet_connection),
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .fillMaxWidth()
-                        )
+                        OutlinedCard {
+                            PersianText(
+                                text = stringResource(R.string.no_internet_connection),
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .fillMaxWidth()
+                            )
+                        }
                     }
                 }
                 items(state.chat.value) {
