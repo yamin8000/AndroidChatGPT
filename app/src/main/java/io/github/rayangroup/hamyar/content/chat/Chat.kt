@@ -157,13 +157,7 @@ fun ChatContent(
                 isInputAllowed = state.isInputAllowed,
                 chatInput = state.chatInput.value,
                 onNewChatInputSubmit = { state.scope.launch { state.newChatHandler(state.chatInput.value) } },
-                onChatInputChange = {
-                    state.chatInput.value = it
-
-                    /*if (it.isNotBlank() && it.contains(Regex("\\s+")))
-                        state.scope.launch { state.suggestInput() }
-                    else state.chatInputSuggestion.value = ""*/
-                }
+                onChatInputChange = { state.chatInput.value = it }
             )
         }
     )

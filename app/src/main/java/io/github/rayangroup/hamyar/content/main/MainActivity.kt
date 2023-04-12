@@ -16,6 +16,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
 import io.github.rayangroup.hamyar.ad.AdConstants
+import io.github.rayangroup.hamyar.ad.AdHelper.requestTapsellAd
+import io.github.rayangroup.hamyar.ad.AdHelper.showTapsellAd
 import io.github.rayangroup.hamyar.content.ThemeSetting
 import io.github.rayangroup.hamyar.db.AppDatabase
 import io.github.rayangroup.hamyar.util.Constants
@@ -28,6 +30,7 @@ import ir.tapsell.plus.model.AdNetworkError
 import ir.tapsell.plus.model.AdNetworks
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -48,14 +51,12 @@ class MainActivity : AppCompatActivity() {
             val theme = getCurrentTheme()
             setContent {
                 var adView by remember { mutableStateOf<ViewGroup?>(null) }
-                var adId by remember { mutableStateOf("") }
+                var adId: String by remember { mutableStateOf("") }
 
-                RequestTapsellAd(onNewAdId = { adId = it })
-
-                ShowTapsellAd(
-                    adId = adId,
-                    adView = adView
-                )
+                LaunchedEffect(Unit) {
+                    adId = requestTapsellAd(this@MainActivity)
+                    showTapsellAd(this@MainActivity, adId, adView)
+                }
 
                 Scaffold {
                     MainContent(

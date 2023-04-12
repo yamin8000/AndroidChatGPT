@@ -28,6 +28,5 @@ fun TapsellAdContent(
                 view
             }
         )
-
     }
 }
