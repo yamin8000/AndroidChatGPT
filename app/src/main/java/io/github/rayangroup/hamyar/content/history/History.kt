@@ -120,8 +120,7 @@ fun HistoryItem(
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         PersianText(
-                            text = date.toLocalDateTime().toIso().replace("T", "_"),
-                            forcePersianFont = true
+                            text = date.toLocalDateTime().toIso().replace("T", "_")
                         )
                     }
 

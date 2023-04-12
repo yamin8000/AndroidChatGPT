@@ -413,8 +413,7 @@ fun PersianText(
     maxLines: Int = Int.MAX_VALUE,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current,
-    overrideDirection: Boolean = true,
-    forcePersianFont: Boolean = false
+    overrideDirection: Boolean = true
 ) {
     PersianText(
         text = AnnotatedString(text),
@@ -433,8 +432,7 @@ fun PersianText(
         maxLines = maxLines,
         onTextLayout = onTextLayout,
         style = style,
-        overrideDirection = overrideDirection,
-        forcePersianFont = forcePersianFont
+        overrideDirection = overrideDirection
     )
 }
 
@@ -456,19 +454,21 @@ fun PersianText(
     maxLines: Int = Int.MAX_VALUE,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current,
-    overrideDirection: Boolean = true,
-    forcePersianFont: Boolean = true
+    overrideDirection: Boolean = true
 ) {
     val containsPersian = Constants.PERSIAN_REGEX.containsMatchIn(text)
+    val isNumber = Constants.NUMBER_REGEX.containsMatchIn(text)
+    val isOverridingForPersian =
+        LocalContext.current.isLocalePersian(text.text) && (containsPersian || isNumber)
 
     val direction = if (overrideDirection) {
-        if (containsPersian) LayoutDirection.Rtl
+        if (isOverridingForPersian) LayoutDirection.Rtl
         else LayoutDirection.Ltr
     } else LocalLayoutDirection.current
 
     var localStyle = style
     var localFontFamily = fontFamily
-    if ((LocalContext.current.isLocalePersian(text.text) && containsPersian) || forcePersianFont) {
+    if (isOverridingForPersian) {
         localFontFamily = Samim
         localStyle = LocalTextStyle.current.copy(textDirection = TextDirection.Rtl)
     }

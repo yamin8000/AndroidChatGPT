@@ -26,7 +26,6 @@ import io.github.rayangroup.hamyar.web.APIs
 import io.github.rayangroup.hamyar.web.Web
 import io.github.rayangroup.hamyar.web.Web.apiOf
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class ChatState(
     val chatInput: MutableState<String>,
@@ -161,25 +160,24 @@ class ChatState(
         .getByParam("historyId", historyId)
         .map { Chat(it.owner.toString().lowercase(), it.content) }
 
-    private suspend fun predictTitle() = withContext(scope.coroutineContext) {
-        return@withContext try {
-            Web.getRetrofit()
-                .apiOf<APIs.ChatCompletionsAPIs>()
-                .createChatCompletions(
-                    CreateChatCompletion(
-                        model = model.value,
-                        messages = listOf(
-                            Chat(
-                                role = "user",
-                                content = assembleChatForPrediction()
-                            )
+    private suspend fun predictTitle() = try {
+        Web.getRetrofit()
+            .apiOf<APIs.ChatCompletionsAPIs>()
+            .createChatCompletions(
+                CreateChatCompletion(
+                    model = model.value,
+                    messages = listOf(
+                        Chat(
+                            role = "user",
+                            content = assembleChatForPrediction()
                         )
                     )
-                ).choices.first().message.content.trim()
-                .replace("\\n", "")
-        } catch (e: Exception) {
-            chat.value.first().content
-        }
+                )
+            ).choices.first().message.content.trim()
+            .replace("\\n", "")
+            .removeSurrounding("\"")
+    } catch (e: Exception) {
+        chat.value.first().content
     }
 
     private fun assembleChatForPrediction(): String {
