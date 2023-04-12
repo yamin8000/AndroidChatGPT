@@ -1,25 +1,23 @@
 package io.github.rayangroup.hamyar.content.images
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.twotone.BrokenImage
 import androidx.compose.material.icons.twotone.Clear
+import androidx.compose.material.icons.twotone.Downloading
 import androidx.compose.material.icons.twotone.ImageSearch
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -29,6 +27,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
 import io.github.rayangroup.hamyar.R
 import io.github.rayangroup.hamyar.ui.composables.PersianText
 import io.github.rayangroup.hamyar.ui.composables.PersianTextField
@@ -80,18 +79,45 @@ fun ImagesContent(
                     content = {
                         if (state.imageUrls.value != null) {
                             items(state.imageUrls.value ?: listOf()) {
-                                AsyncImage(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.FillWidth,
-                                    contentDescription = state.imagePrompt.value,
-                                    model = it
-                                )
+                                SingleImage(state.imagePrompt.value, it)
                             }
                         } else item { EmptyList() }
                     }
                 )
             }
         }
+    )
+}
+
+@Composable
+private fun SingleImage(
+    description: String,
+    url: String
+) {
+    var imagesState: AsyncImagePainter.State by remember { mutableStateOf(AsyncImagePainter.State.Empty) }
+    when (imagesState) {
+        is AsyncImagePainter.State.Loading -> {
+            Image(
+                modifier = Modifier.size(100.dp),
+                imageVector = Icons.TwoTone.Downloading,
+                contentDescription = ""
+            )
+        }
+        is AsyncImagePainter.State.Error -> {
+            Image(
+                modifier = Modifier.size(100.dp),
+                imageVector = Icons.TwoTone.BrokenImage,
+                contentDescription = ""
+            )
+        }
+        else -> {}
+    }
+    AsyncImage(
+        modifier = Modifier.fillMaxSize(),
+        contentScale = ContentScale.FillWidth,
+        contentDescription = description,
+        model = url,
+        onState = { imagesState = it }
     )
 }
 
