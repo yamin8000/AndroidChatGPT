@@ -44,7 +44,7 @@ fun ImagesContent(
 
     val gridSpan = remember {
         derivedStateOf {
-            if (state.imageUrls.value.size <= 1) 1
+            if ((state.imageUrls.value?.size ?: 0) <= 1) 1
             else 2
         }
     }
@@ -68,26 +68,18 @@ fun ImagesContent(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    if (state.isWaitingForResponse.value)
-                        CircularProgressIndicator()
-                    LazyVerticalStaggeredGrid(
-                        columns = StaggeredGridCells.Fixed(gridSpan.value),
-                        verticalItemSpacing = 8.dp,
-                        horizontalArrangement = Arrangement.spacedBy(
-                            8.dp,
-                            Alignment.CenterHorizontally
-                        ),
-                        content = {
-                            item {
-                                if (state.imageUrls.value.isEmpty())
-                                    EmptyList()
-                            }
-                            items(state.imageUrls.value) {
+                if (state.isWaitingForResponse.value)
+                    CircularProgressIndicator()
+                LazyVerticalStaggeredGrid(
+                    columns = StaggeredGridCells.Fixed(gridSpan.value),
+                    verticalItemSpacing = 8.dp,
+                    horizontalArrangement = Arrangement.spacedBy(
+                        8.dp,
+                        Alignment.CenterHorizontally
+                    ),
+                    content = {
+                        if (state.imageUrls.value != null) {
+                            items(state.imageUrls.value ?: listOf()) {
                                 AsyncImage(
                                     modifier = Modifier.fillMaxSize(),
                                     contentScale = ContentScale.FillWidth,
@@ -95,9 +87,9 @@ fun ImagesContent(
                                     model = it
                                 )
                             }
-                        }
-                    )
-                }
+                        } else item { EmptyList() }
+                    }
+                )
             }
         }
     )

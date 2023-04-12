@@ -17,7 +17,7 @@ import retrofit2.HttpException
 
 class ImagesState(
     val imagePrompt: MutableState<String>,
-    val imageUrls: MutableState<List<String>>,
+    val imageUrls: MutableState<List<String>?>,
     val isWaitingForResponse: MutableState<Boolean>,
     val scope: LifecycleCoroutineScope
 ) {
@@ -34,7 +34,7 @@ class ImagesState(
         } catch (e: Exception) {
             e.stackTraceToString().log()
             (e as? HttpException)?.response()?.errorBody()?.string()?.log()
-            listOf()
+            null
         } finally {
             isWaitingForResponse.value = false
         }
@@ -44,7 +44,7 @@ class ImagesState(
 @Composable
 fun rememberImagesState(
     imagePrompt: MutableState<String> = rememberSaveable { mutableStateOf("") },
-    imageUrls: MutableState<List<String>> = rememberSaveable { mutableStateOf(listOf()) },
+    imageUrls: MutableState<List<String>?> = rememberSaveable { mutableStateOf(listOf()) },
     isWaitingForResponse: MutableState<Boolean> = rememberSaveable { mutableStateOf(false) },
     scope: LifecycleCoroutineScope = LocalLifecycleOwner.current.lifecycleScope
 ) = remember(imagePrompt, imageUrls, isWaitingForResponse, scope) {
