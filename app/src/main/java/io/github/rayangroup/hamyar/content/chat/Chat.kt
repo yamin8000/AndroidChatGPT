@@ -58,7 +58,9 @@ fun ChatContent(
     if (listState.isScrollInProgress)
         LocalHapticFeedback.current.performHapticFeedback(HapticFeedbackType.TextHandleMove)
 
-    LaunchedEffect(state.chat.value.size) {
+    val chatSize by remember { derivedStateOf { state.chat.value.size } }
+
+    LaunchedEffect(chatSize) {
         val index = state.chat.value.size - 1
         if (index > 0)
             listState.animateScrollToItem(index)
