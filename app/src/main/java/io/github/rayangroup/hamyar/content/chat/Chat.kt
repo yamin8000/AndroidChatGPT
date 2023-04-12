@@ -66,14 +66,10 @@ fun ChatContent(
 
     InternetAwareComposable { state.isOnline.value = it }
 
-    BackHandler {
-        state.scope.launch {
-            //state.handleHistorySaving()
-            onBackClick()
-        }
-    }
+    BackHandler { state.scope.launch { onBackClick() } }
 
     ScaffoldWithTitle(
+        onBackClick = { state.scope.launch { onBackClick() } },
         title = {
             AnimatedContent(state.title.value) {
                 PersianText(
@@ -81,12 +77,6 @@ fun ChatContent(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-            }
-        },
-        onBackClick = {
-            state.scope.launch {
-                //state.handleHistorySaving()
-                onBackClick()
             }
         },
         snackbarHost = {
@@ -154,7 +144,7 @@ fun ChatContent(
         },
         bottomBar = {
             UserInput(
-                isInputAllowed = state.isInputAllowed,
+                isInputAllowed = state.chat.value.isEmpty() || !state.isWaitingForResponse.value,
                 chatInput = state.chatInput.value,
                 onNewChatInputSubmit = { state.scope.launch { state.newChatHandler(state.chatInput.value) } },
                 onChatInputChange = { state.chatInput.value = it }
@@ -213,7 +203,7 @@ private fun UserInput(
 @Composable
 fun ChatBubble(
     content: String,
-    owner: ChatBubbleOwner,
+    owner: ChatBubbleOwner
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 

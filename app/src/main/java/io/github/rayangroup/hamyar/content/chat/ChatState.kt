@@ -47,8 +47,6 @@ class ChatState(
 
     private var isUpdatable = false
 
-    var isInputAllowed = true
-
     val snackbarHost = SnackbarHostState()
 
     private val settings = DataStoreHelper(context.settingsDataStore)
@@ -123,7 +121,6 @@ class ChatState(
         isAllowed: Boolean
     ) {
         isWaitingForResponse.value = !isAllowed
-        isInputAllowed = isAllowed
     }
 
     private suspend fun addChatItemToHistory(

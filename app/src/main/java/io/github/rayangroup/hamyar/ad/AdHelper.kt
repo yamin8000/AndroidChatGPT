@@ -53,7 +53,6 @@ object AdHelper {
                 override fun error(error: String?) {
                     super.error(error)
                     error?.log()
-                    cancellableContinuation.resume("")
                 }
             }
         )
