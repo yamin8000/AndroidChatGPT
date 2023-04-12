@@ -36,4 +36,5 @@
     <string name="about_text">This application, which was developed in the software engineering department of the Vira Rayan Caspian Technology Development Company, is implemented in two parts: Dialogue and Images Generation.\nIn the Dialogue section, the user has the possibility to talk with the artificial intelligence server of OpenAI, which is known as CHAT-GPT.\nIn the Images Generation section, the user provides his description of the desired image and the application displays four images related to the description.</string>
     <string name="image_input_placeholder">Enter your desired image description.</string>
     <string name="empty_list">Nothing found.</string>
+    <string name="ai_failed_answering">Ai failed to answer in a reasonable time.</string>
 </resources>

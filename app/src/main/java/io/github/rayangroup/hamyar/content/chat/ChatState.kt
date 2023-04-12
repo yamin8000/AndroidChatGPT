@@ -42,6 +42,8 @@ class ChatState(
 
     private val modelNotSupported = context.getString(R.string.model_not_supported)
 
+    private val aiFailedToAnswer = context.getString(R.string.ai_failed_answering)
+
     private val isModelSupported: Boolean
         get() = model.value in Constants.CHAT_MODELS
 
@@ -87,17 +89,17 @@ class ChatState(
 
             resetInput()
             changeInputAllowance(false)
-            val aiCompletion = chatCompletionRequest()
+            val aiAnswer = chatCompletionRequest()
+                ?.choices
+                ?.first()
+                ?.message ?: Chat(role = "assistant", content = aiFailedToAnswer)
             changeInputAllowance(true)
 
-            if (aiCompletion != null) {
-                val newAiChat = aiCompletion.choices.first().message
-                chat.value += newAiChat
-                if (chat.value.size > 3)
-                    title.value = createHistoryTitle(predictTitle())
-                addChatItemToHistory(newAiChat, historyId.value)
-                updateChatHistoryTitle()
-            }
+            chat.value += aiAnswer
+            if (chat.value.size > 3)
+                title.value = createHistoryTitle(predictTitle())
+            addChatItemToHistory(aiAnswer, historyId.value)
+            updateChatHistoryTitle()
         } else snackbarHost.showSnackbar(modelNotSupported)
     }
 
