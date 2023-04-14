@@ -10,7 +10,7 @@ import com.squareup.moshi.Json
 data class CreateUrlImage(
     val prompt: String,
     val n: Int = 1,
-    val size: String = "512x512",
+    val size: String = "256x256",
     @field:Json(name = "response_format")
     val responseFormat: String = "url",
     val user: String? = null

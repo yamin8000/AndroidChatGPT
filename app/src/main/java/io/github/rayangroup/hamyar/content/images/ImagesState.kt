@@ -28,7 +28,7 @@ class ImagesState(
             isWaitingForResponse.value = true
             Web.getRetrofit()
                 .apiOf<APIs.ImagesAPIs>()
-                .createUrlImage(createImage = CreateUrlImage(prompt = newPrompt, n = 4))
+                .createUrlImage(createImage = CreateUrlImage(prompt = newPrompt, n = 2))
                 .data
                 .map { it.url }
         } catch (e: Exception) {

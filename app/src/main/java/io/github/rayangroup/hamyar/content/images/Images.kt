@@ -11,7 +11,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.BrokenImage
 import androidx.compose.material.icons.twotone.Clear
-import androidx.compose.material.icons.twotone.Downloading
 import androidx.compose.material.icons.twotone.ImageSearch
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -97,11 +96,7 @@ private fun SingleImage(
     var imagesState: AsyncImagePainter.State by remember { mutableStateOf(AsyncImagePainter.State.Empty) }
     when (imagesState) {
         is AsyncImagePainter.State.Loading -> {
-            Image(
-                modifier = Modifier.size(100.dp),
-                imageVector = Icons.TwoTone.Downloading,
-                contentDescription = ""
-            )
+            CircularProgressIndicator(modifier = Modifier.size(25.dp))
         }
         is AsyncImagePainter.State.Error -> {
             Image(
