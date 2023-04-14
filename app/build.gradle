@@ -82,7 +82,7 @@ dependencies {
     implementation("androidx.compose.material3:material3:$material3_version")
     implementation("androidx.compose.material3:material3-window-size-class:$material3_version")
     //network
-    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.10")
+    //implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.10")
     def retrofit_version = "2.9.0"
     implementation("com.squareup.retrofit2:retrofit:$retrofit_version")
     implementation("com.squareup.retrofit2:converter-moshi:$retrofit_version")

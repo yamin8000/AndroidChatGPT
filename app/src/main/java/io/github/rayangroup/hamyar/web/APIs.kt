@@ -11,6 +11,7 @@ import retrofit2.http.POST
 
 sealed interface AppAPIs
 
+@Suppress("unused")
 object APIs {
 
     interface ModelsAPIs {

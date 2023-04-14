@@ -9,6 +9,8 @@ object Web {
 
     private const val baseUrl = "https://api.openai.com/v1/"
 
+    private const val TIMEOUT = 60L
+
     private lateinit var retrofit: Retrofit
 
     fun getRetrofit(): Retrofit {
@@ -24,9 +26,8 @@ object Web {
 
     private fun createOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
-            .connectTimeout(60L, TimeUnit.SECONDS)
-            .readTimeout(60L, TimeUnit.SECONDS)
-            .writeTimeout(60L, TimeUnit.SECONDS)
+            .pingInterval(3L, TimeUnit.SECONDS)
+            .callTimeout(TIMEOUT, TimeUnit.SECONDS)
             .addInterceptor {
                 it.proceed(
                     it.request()
