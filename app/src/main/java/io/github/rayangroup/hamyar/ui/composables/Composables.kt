@@ -46,6 +46,7 @@ import io.github.rayangroup.hamyar.ui.theme.Samim
 import io.github.rayangroup.hamyar.util.Constants
 import io.github.rayangroup.hamyar.util.Constants.DNS_SERVERS
 import io.github.rayangroup.hamyar.util.Constants.INTERNET_CHECK_DELAY
+import io.github.rayangroup.hamyar.util.Constants.MIXED_PERSIAN_REGEX
 import io.github.rayangroup.hamyar.util.isLocalePersian
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -352,7 +353,7 @@ fun PersianTextField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    shape: Shape = TextFieldDefaults.filledShape,
+    shape: Shape = TextFieldDefaults.shape,
     overrideDirection: Boolean = true
 ) {
     val containsPersian = Constants.PERSIAN_REGEX.containsMatchIn(value)
@@ -456,10 +457,8 @@ fun PersianText(
     style: TextStyle = LocalTextStyle.current,
     overrideDirection: Boolean = true
 ) {
-    val containsPersian = Constants.PERSIAN_REGEX.containsMatchIn(text)
-    val isNumber = Constants.NUMBER_REGEX.containsMatchIn(text)
     val isOverridingForPersian =
-        LocalContext.current.isLocalePersian(text.text) && (containsPersian || isNumber)
+        LocalContext.current.isLocalePersian(text.text) && MIXED_PERSIAN_REGEX.matches(text)
 
     val direction = if (overrideDirection) {
         if (isOverridingForPersian) LayoutDirection.Rtl

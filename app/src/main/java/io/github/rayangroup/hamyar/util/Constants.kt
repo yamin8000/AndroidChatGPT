@@ -22,6 +22,7 @@ object Constants {
 
     val PERSIAN_REGEX = Regex("[\\u0621-\\u064a]+")
     val NUMBER_REGEX = Regex("\\d+")
+    val MIXED_PERSIAN_REGEX = Regex("(([\\u0621-\\u064a]+)|[^a-zA-Z])+")
 
     const val TITLE_PREDICTION_PROMPT =
         "find a title for this conversion:\n"
