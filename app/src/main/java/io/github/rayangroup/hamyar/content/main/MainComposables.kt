@@ -1,16 +1,17 @@
 package io.github.rayangroup.hamyar.content.main
 
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -34,10 +35,9 @@ import io.github.rayangroup.hamyar.ui.theme.AppTheme
 internal fun MainContent(
     currentTheme: ThemeSetting,
     onCreated: (ViewGroup) -> Unit,
-    onUpdate: (ViewGroup) -> Unit
+    onUpdate: (ViewGroup) -> Unit,
+    disabledFeatures: () -> Unit
 ) {
-    val context = LocalContext.current
-    val dallE = stringResource(io.github.rayangroup.hamyar.R.string.dalle)
     var theme by remember { mutableStateOf(currentTheme) }
 
     AppTheme(
@@ -58,7 +58,7 @@ internal fun MainContent(
                                 navigationDestinations[navigationItem]?.let {
                                     navController.navigate(it)
                                 }
-                            } else Toast.makeText(context, dallE, Toast.LENGTH_SHORT).show()
+                            } else disabledFeatures()
                         })
                 }
 
