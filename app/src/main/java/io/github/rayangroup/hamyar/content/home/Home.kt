@@ -81,6 +81,10 @@ fun HomeContent(
                                     content = { PersianText(stringResource(R.string.chat_with_me)) },
                                     onClick = { onNavigateTo(NavigationItem.NewChat) }
                                 )
+                                Button(
+                                    content = { PersianText(stringResource(R.string.make_images_with_me)) },
+                                    onClick = { onNavigateTo(NavigationItem.Images) }
+                                )
                                 Lottie(R.raw.robot)
                             }
                         }
