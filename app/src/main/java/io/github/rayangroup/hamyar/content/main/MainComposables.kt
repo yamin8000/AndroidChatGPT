@@ -1,6 +1,7 @@
 package io.github.rayangroup.hamyar.content.main
 
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,6 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -20,6 +23,7 @@ import io.github.rayangroup.hamyar.content.about.AboutContent
 import io.github.rayangroup.hamyar.content.chat.ChatContent
 import io.github.rayangroup.hamyar.content.history.HistoryContent
 import io.github.rayangroup.hamyar.content.home.HomeContent
+import io.github.rayangroup.hamyar.content.home.NavigationItem
 import io.github.rayangroup.hamyar.content.images.ImagesContent
 import io.github.rayangroup.hamyar.content.settings.SettingsContent
 import io.github.rayangroup.hamyar.ui.Nav
@@ -32,6 +36,8 @@ internal fun MainContent(
     onCreated: (ViewGroup) -> Unit,
     onUpdate: (ViewGroup) -> Unit
 ) {
+    val context = LocalContext.current
+    val dallE = stringResource(io.github.rayangroup.hamyar.R.string.dalle)
     var theme by remember { mutableStateOf(currentTheme) }
 
     AppTheme(
@@ -48,9 +54,11 @@ internal fun MainContent(
                 composable(Nav.Routes.home) {
                     HomeContent(
                         onNavigateTo = { navigationItem ->
-                            navigationDestinations[navigationItem]?.let {
-                                navController.navigate(it)
-                            }
+                            if (navigationItem != NavigationItem.Images) {
+                                navigationDestinations[navigationItem]?.let {
+                                    navController.navigate(it)
+                                }
+                            } else Toast.makeText(context, dallE, Toast.LENGTH_SHORT).show()
                         })
                 }
 
