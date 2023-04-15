@@ -6,5 +6,5 @@ object ApiKey {
     const val AUTHORIZATION = "Authorization"
 
     const val GITHUB_TOKEN =
-        "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"
+        "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"
 }
