@@ -15,6 +15,7 @@ import io.github.rayangroup.hamyar.content.main.settingsDataStore
 import io.github.rayangroup.hamyar.util.Constants
 import io.github.rayangroup.hamyar.util.DataStoreHelper
 import io.github.rayangroup.hamyar.util.log
+import io.github.rayangroup.hamyar.util.reportException
 import io.github.rayangroup.hamyar.web.APIs
 import io.github.rayangroup.hamyar.web.Web
 import io.github.rayangroup.hamyar.web.Web.apiOf
@@ -50,8 +51,8 @@ class SettingsState(
             .data
             .map { it.id }
     } catch (e: Exception) {
-        e.message?.log()
-        e.stackTraceToString().log()
+        log(e)
+        reportException(e)
         listOf()
     }
 

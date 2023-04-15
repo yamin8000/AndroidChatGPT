@@ -96,11 +96,11 @@ class MainActivity : AppCompatActivity() {
     private fun initTapsellAd() {
         TapsellPlus.initialize(this, AdConstants.TAPSELL_KEY, object : TapsellPlusInitListener {
             override fun onInitializeSuccess(ads: AdNetworks?) {
-                ads?.name?.log()
+                log(ads?.name ?: "Unknown ad name")
             }
 
             override fun onInitializeFailed(ads: AdNetworks?, error: AdNetworkError?) {
-                error?.errorMessage?.log()
+                log(error?.errorMessage ?: "Unknown tapsell init error")
             }
         })
     }

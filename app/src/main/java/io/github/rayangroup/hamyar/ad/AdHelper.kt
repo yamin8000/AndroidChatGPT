@@ -27,12 +27,12 @@ object AdHelper {
             object : AdShowListener() {
                 override fun onOpened(tapsellPlusAdModel: TapsellPlusAdModel) {
                     super.onOpened(tapsellPlusAdModel)
-                    tapsellPlusAdModel.responseId.log()
+                    log(tapsellPlusAdModel.responseId)
                 }
 
                 override fun onError(tapsellPlusErrorModel: TapsellPlusErrorModel) {
                     super.onError(tapsellPlusErrorModel)
-                    tapsellPlusErrorModel.errorMessage.log()
+                    log(tapsellPlusErrorModel.errorMessage)
                 }
             })
     }
@@ -52,7 +52,7 @@ object AdHelper {
 
                 override fun error(error: String?) {
                     super.error(error)
-                    error?.log()
+                    log(error ?: "Unknown Tapsell Ad Request error")
                 }
             }
         )

@@ -48,10 +48,11 @@ import io.github.rayangroup.hamyar.util.Constants.DNS_SERVERS
 import io.github.rayangroup.hamyar.util.Constants.INTERNET_CHECK_DELAY
 import io.github.rayangroup.hamyar.util.Constants.MIXED_PERSIAN_REGEX
 import io.github.rayangroup.hamyar.util.isLocalePersian
+import io.github.rayangroup.hamyar.util.log
+import io.github.rayangroup.hamyar.util.reportException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-
 
 
 @Composable
@@ -84,6 +85,8 @@ fun InternetAwareComposable(
             Runtime.getRuntime().exec("/system/bin/ping -c 1 $dnsServer").waitFor()
         } == 0
     } catch (e: Exception) {
+        log(e)
+        reportException(e)
         false
     }
 
