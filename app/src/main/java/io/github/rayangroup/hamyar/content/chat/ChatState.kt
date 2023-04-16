@@ -17,6 +17,7 @@ import io.github.rayangroup.hamyar.db.entity.HistoryEntity
 import io.github.rayangroup.hamyar.db.entity.HistoryItemEntity
 import io.github.rayangroup.hamyar.model.Chat
 import io.github.rayangroup.hamyar.model.request.CreateChatCompletion
+import io.github.rayangroup.hamyar.model.response.ChatCompletion
 import io.github.rayangroup.hamyar.util.Constants
 import io.github.rayangroup.hamyar.util.Constants.db
 import io.github.rayangroup.hamyar.util.DataStoreHelper
@@ -26,25 +27,29 @@ import io.github.rayangroup.hamyar.util.reportException
 import io.github.rayangroup.hamyar.web.APIs
 import io.github.rayangroup.hamyar.web.Web
 import io.github.rayangroup.hamyar.web.Web.apiOf
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class ChatState(
+    context: Context,
+    private val historyId: MutableState<Long>,
+    val scope: LifecycleCoroutineScope,
     val chatInput: MutableState<String>,
     val chat: MutableState<List<Chat>>,
     val model: MutableState<String>,
     val title: MutableState<String>,
     val isOnline: MutableState<Boolean>,
     val isWaitingForResponse: MutableState<Boolean>,
-    private val historyId: MutableState<Long>,
-    context: Context,
-    val scope: LifecycleCoroutineScope
+    val inputVisibility: MutableState<Boolean>
 ) {
     private val retrofit = Web.getRetrofit()
 
     private val modelNotSupported = context.getString(R.string.model_not_supported)
 
     private val aiFailedToAnswer = context.getString(R.string.ai_failed_answering)
+
+    private val aiCancelledAnswer = context.getString(R.string.ai_was_cancelled)
 
     private val isModelSupported: Boolean
         get() = model.value in Constants.CHAT_MODELS
@@ -94,10 +99,10 @@ class ChatState(
             resetInput()
             changeInputAllowance(false)
             chatJob = scope.launch {
-                val aiAnswer = chatCompletionRequest()
-                    ?.choices
-                    ?.first()
-                    ?.message ?: Chat(role = "assistant", content = aiFailedToAnswer)
+                val (completion, exception) = chatCompletionRequest()
+                val aiAnswer = if (completion != null && exception == null) {
+                    completion.choices.first().message
+                } else createChatForExceptions(exception)
                 changeInputAllowance(true)
 
                 chat.value += aiAnswer
@@ -109,20 +114,29 @@ class ChatState(
         } else snackbarHost.showSnackbar(modelNotSupported)
     }
 
-    private suspend fun chatCompletionRequest() = try {
-        retrofit.apiOf<APIs.ChatCompletionsAPIs>().createChatCompletions(
-            CreateChatCompletion(
-                model = model.value,
-                messages = chat.value
-            )
-        )
-    } catch (e: Exception) {
-        log(e)
-        null
-    } catch (e: Exception) {
-        log(e)
-        reportException(e)
-        null
+    private fun createChatForExceptions(
+        exception: Exception?
+    ) = Chat(
+        role = "assistant",
+        content = if (exception is CancellationException) aiCancelledAnswer else aiFailedToAnswer
+    )
+
+    private suspend fun chatCompletionRequest(): Pair<ChatCompletion?, Exception?> {
+        return try {
+            retrofit.apiOf<APIs.ChatCompletionsAPIs>().createChatCompletions(
+                CreateChatCompletion(
+                    model = model.value,
+                    messages = chat.value
+                )
+            ) to null
+        } catch (e: CancellationException) {
+            log(e)
+            null to e
+        } catch (e: Exception) {
+            log(e)
+            reportException(e)
+            null to e
+        }
     }
 
     private fun resetInput() {
@@ -133,6 +147,7 @@ class ChatState(
         isAllowed: Boolean
     ) {
         isWaitingForResponse.value = !isAllowed
+        inputVisibility.value = isAllowed
     }
 
     private suspend fun addChatItemToHistory(
@@ -205,35 +220,38 @@ class ChatState(
 
 @Composable
 fun rememberChatState(
+    context: Context = LocalContext.current,
+    historyId: MutableState<Long> = rememberSaveable { mutableStateOf(-1L) },
+    scope: LifecycleCoroutineScope = LocalLifecycleOwner.current.lifecycleScope,
     chatInput: MutableState<String> = rememberSaveable { mutableStateOf("") },
     chat: MutableState<List<Chat>> = rememberSaveable { mutableStateOf(listOf()) },
     model: MutableState<String> = rememberSaveable { mutableStateOf(Constants.DEFAULT_API_MODEL) },
     title: MutableState<String> = rememberSaveable { mutableStateOf("") },
     isOnline: MutableState<Boolean> = rememberSaveable { mutableStateOf(true) },
     isWaitingForResponse: MutableState<Boolean> = rememberSaveable { mutableStateOf(false) },
-    historyId: MutableState<Long> = rememberSaveable { mutableStateOf(-1L) },
-    context: Context = LocalContext.current,
-    scope: LifecycleCoroutineScope = LocalLifecycleOwner.current.lifecycleScope
+    inputVisibility: MutableState<Boolean> = rememberSaveable { mutableStateOf(true) }
 ) = remember(
+    context,
+    historyId,
+    scope,
     chatInput,
     chat,
     model,
     title,
     isOnline,
     isWaitingForResponse,
-    historyId,
-    context,
-    scope
+    inputVisibility
 ) {
     ChatState(
+        context,
+        historyId,
+        scope,
         chatInput,
         chat,
         model,
         title,
         isOnline,
         isWaitingForResponse,
-        historyId,
-        context,
-        scope
+        inputVisibility
     )
 }

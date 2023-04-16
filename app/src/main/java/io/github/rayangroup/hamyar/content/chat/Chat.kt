@@ -16,9 +16,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.Clear
 import androidx.compose.material.icons.twotone.Send
 import androidx.compose.material.icons.twotone.Settings
+import androidx.compose.material.icons.twotone.Stop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -137,20 +137,13 @@ fun ChatContent(
                         ChatBubble(
                             owner = ChatBubbleOwner.Assistant,
                             content = {
-                                Row(
+                                Box(
+                                    content = { AnimatedDots() },
                                     modifier = Modifier.padding(
                                         vertical = 4.dp,
                                         horizontal = 8.dp
-                                    ),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Box(content = { AnimatedDots() })
-                                    OutlinedButton(
-                                        content = { PersianText(stringResource(R.string.cancel)) },
-                                        onClick = { state.cancel() }
                                     )
-                                }
+                                )
                             }
                         )
                     }
@@ -158,25 +151,41 @@ fun ChatContent(
             }
         },
         bottomBar = {
-            UserInput(
-                isInputAllowed = state.chat.value.isEmpty() || !state.isWaitingForResponse.value,
-                chatInput = state.chatInput.value,
-                onNewChatInputSubmit = { state.scope.launch { state.newChatHandler(state.chatInput.value) } },
-                onChatInputChange = { state.chatInput.value = it }
-            )
+            Crossfade(state.inputVisibility.value) {
+                if (it) {
+                    UserInput(
+                        chatInput = state.chatInput.value,
+                        onNewChatInputSubmit = { state.scope.launch { state.newChatHandler(state.chatInput.value) } },
+                        onChatInputChange = { input -> state.chatInput.value = input }
+                    )
+                } else {
+                    BottomAppBar(
+                        actions = { },
+                        floatingActionButton = {
+                            FloatingActionButton(
+                                onClick = { state.cancel() },
+                                content = {
+                                    Icon(
+                                        imageVector = Icons.TwoTone.Stop,
+                                        contentDescription = stringResource(R.string.cancel)
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            }
         }
     )
 }
 
 @Composable
 private fun UserInput(
-    isInputAllowed: Boolean,
     chatInput: String,
     onChatInputChange: (String) -> Unit,
     onNewChatInputSubmit: () -> Unit
 ) {
     PersianTextField(
-        enabled = isInputAllowed,
         label = { PersianText(text = stringResource(R.string.chat_input)) },
         value = chatInput,
         onValueChange = { onChatInputChange(it) },

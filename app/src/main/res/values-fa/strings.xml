@@ -40,4 +40,5 @@
     <string name="ai_failed_answering">هوش مصنوعی موفق به پاسخگویی در یک زمان منطقی نشد.</string>
     <string name="make_images_with_me">عکس بساز</string>
     <string name="dalle">این قابلیت فعلا غیرفعال است.</string>
+    <string name="ai_was_cancelled">پاسخگویی هوش مصنوعی توسط کاربر لغو شد</string>
 </resources>

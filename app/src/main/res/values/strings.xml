@@ -39,4 +39,5 @@
     <string name="ai_failed_answering">Ai failed to answer in a reasonable time.</string>
     <string name="make_images_with_me">Make images</string>
     <string name="dalle">This feature is currently disabled.</string>
+    <string name="ai_was_cancelled">Ai\'s answering was cancelled by user</string>
 </resources>
