@@ -130,16 +130,13 @@ class ChatState(
     private suspend fun addChatItemToHistory(
         chat: Chat,
         id: Long
-    ): Long {
-        updateChatHistoryTitle()
-        return db.historyItemDao().insert(
-            HistoryItemEntity(
-                content = chat.content,
-                owner = ChatBubbleOwner.of(chat.role),
-                historyId = id
-            )
+    ) = db.historyItemDao().insert(
+        HistoryItemEntity(
+            content = chat.content,
+            owner = ChatBubbleOwner.of(chat.role),
+            historyId = id
         )
-    }
+    )
 
     private suspend fun updateChatHistoryTitle(): Int? {
         val dao = db.historyDao()
