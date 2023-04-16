@@ -26,6 +26,7 @@ import io.github.rayangroup.hamyar.util.reportException
 import io.github.rayangroup.hamyar.web.APIs
 import io.github.rayangroup.hamyar.web.Web
 import io.github.rayangroup.hamyar.web.Web.apiOf
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class ChatState(
@@ -55,6 +56,8 @@ class ChatState(
     private val settings = DataStoreHelper(context.settingsDataStore)
 
     private var historyChat = listOf<Chat>()
+
+    private lateinit var chatJob: Job
 
     init {
         scope.launch {
@@ -90,17 +93,19 @@ class ChatState(
 
             resetInput()
             changeInputAllowance(false)
-            val aiAnswer = chatCompletionRequest()
-                ?.choices
-                ?.first()
-                ?.message ?: Chat(role = "assistant", content = aiFailedToAnswer)
-            changeInputAllowance(true)
+            chatJob = scope.launch {
+                val aiAnswer = chatCompletionRequest()
+                    ?.choices
+                    ?.first()
+                    ?.message ?: Chat(role = "assistant", content = aiFailedToAnswer)
+                changeInputAllowance(true)
 
-            chat.value += aiAnswer
-            if (chat.value.size > 3)
-                title.value = createHistoryTitle(predictTitle())
-            addChatItemToHistory(aiAnswer, historyId.value)
-            updateChatHistoryTitle()
+                chat.value += aiAnswer
+                if (chat.value.size > 3)
+                    title.value = createHistoryTitle(predictTitle())
+                addChatItemToHistory(aiAnswer, historyId.value)
+                updateChatHistoryTitle()
+            }
         } else snackbarHost.showSnackbar(modelNotSupported)
     }
 
@@ -111,6 +116,9 @@ class ChatState(
                 messages = chat.value
             )
         )
+    } catch (e: Exception) {
+        log(e)
+        null
     } catch (e: Exception) {
         log(e)
         reportException(e)
@@ -188,6 +196,10 @@ class ChatState(
                 append("\n")
             }
         }
+    }
+
+    fun cancel() {
+        chatJob.cancel()
     }
 }
 

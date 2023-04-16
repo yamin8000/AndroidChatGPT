@@ -18,6 +18,7 @@ import androidx.compose.material.icons.twotone.Send
 import androidx.compose.material.icons.twotone.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -136,10 +137,20 @@ fun ChatContent(
                         ChatBubble(
                             owner = ChatBubbleOwner.Assistant,
                             content = {
-                                Box(
-                                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
-                                    content = { AnimatedDots() }
-                                )
+                                Row(
+                                    modifier = Modifier.padding(
+                                        vertical = 4.dp,
+                                        horizontal = 8.dp
+                                    ),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(content = { AnimatedDots() })
+                                    OutlinedButton(
+                                        content = { PersianText(stringResource(R.string.cancel)) },
+                                        onClick = { state.cancel() }
+                                    )
+                                }
                             }
                         )
                     }
