@@ -19,7 +19,7 @@ fun AboutContent(
         content = {
             PersianText(
                 textAlign = TextAlign.Justify,
-                text = stringResource(id = R.string.about_text)
+                text = stringResource(R.string.about_text)
             )
         }
     )

@@ -31,6 +31,7 @@ import io.github.rayangroup.hamyar.util.Constants.db
 import io.github.rayangroup.hamyar.util.Constants.isDbInitialized
 import io.github.rayangroup.hamyar.util.DataStoreHelper
 import io.github.rayangroup.hamyar.util.log
+import io.github.rayangroup.hamyar.util.reportException
 import ir.tapsell.plus.*
 import ir.tapsell.plus.model.AdNetworkError
 import ir.tapsell.plus.model.AdNetworks
@@ -49,48 +50,53 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        db = createDb()
-        initTapsellAd()
+        try {
+            db = createDb()
+            initTapsellAd()
 
-        scope.launch {
-            val theme = getCurrentTheme()
-            setContent {
-                var adView by remember { mutableStateOf<ViewGroup?>(null) }
-                var adId: String by remember { mutableStateOf("") }
+            scope.launch {
+                val theme = getCurrentTheme()
+                setContent {
+                    var adView by remember { mutableStateOf<ViewGroup?>(null) }
+                    var adId: String by remember { mutableStateOf("") }
 
-                LaunchedEffect(Unit) {
-                    adId = requestTapsellAd(this@MainActivity)
-                    showTapsellAd(this@MainActivity, adId, adView)
-                }
+                    LaunchedEffect(Unit) {
+                        adId = requestTapsellAd(this@MainActivity)
+                        showTapsellAd(this@MainActivity, adId, adView)
+                    }
 
-                val dallE = stringResource(R.string.dalle)
-                val snackbarHostState = remember { SnackbarHostState() }
-                Scaffold(
-                    snackbarHost = {
-                        SnackbarHost(snackbarHostState) { data ->
-                            MySnackbar {
-                                PersianText(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textAlign = TextAlign.Center,
-                                    text = data.visuals.message
-                                )
+                    val dallE = stringResource(R.string.dalle)
+                    val snackbarHostState = remember { SnackbarHostState() }
+                    Scaffold(
+                        snackbarHost = {
+                            SnackbarHost(snackbarHostState) { data ->
+                                MySnackbar {
+                                    PersianText(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        textAlign = TextAlign.Center,
+                                        text = data.visuals.message
+                                    )
+                                }
                             }
-                        }
-                    },
-                ) {
-                    MainContent(
-                        currentTheme = theme,
-                        onCreated = { adView = it },
-                        onUpdate = { adView = it },
-                        disabledFeatures = {
-                            scope.launch { snackbarHostState.showSnackbar(dallE) }
-                        }
-                    )
+                        },
+                    ) {
+                        MainContent(
+                            currentTheme = theme,
+                            onCreated = { adView = it },
+                            onUpdate = { adView = it },
+                            disabledFeatures = {
+                                scope.launch { snackbarHostState.showSnackbar(dallE) }
+                            }
+                        )
+                    }
                 }
             }
-        }
 
-        handleLocale()
+            handleLocale()
+        } catch (e: Exception) {
+            log(e)
+            reportException(e)
+        }
     }
 
     private fun initTapsellAd() {

@@ -21,13 +21,8 @@ object Constants {
     val EDIT_MODELS = listOf("text-davinci-edit-001", "code-davinci-edit-001")
 
     val PERSIAN_REGEX = Regex("[\\u0621-\\u064a]+")
-    val NUMBER_REGEX = Regex("\\d+")
-    val MIXED_PERSIAN_REGEX = Regex("(([\\u0621-\\u064a]+)|[^a-zA-Z])+")
 
-    const val TITLE_PREDICTION_PROMPT =
-        "find a title for this conversion:\n"
-
-    const val INPUT_EDIT_PROMPT = "complete this sentence"
+    const val TITLE_PREDICTION_PROMPT = "find a title for this conversion:\n"
 
     const val INTERNET_CHECK_DELAY = 3000L
     val DNS_SERVERS = listOf("8.8.8.8", "8.8.4.4", "1.1.1.1", "4.2.2.4")

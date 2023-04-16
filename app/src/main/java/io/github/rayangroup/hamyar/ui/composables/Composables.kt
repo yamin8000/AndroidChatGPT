@@ -43,17 +43,15 @@ import com.airbnb.lottie.compose.*
 import io.github.rayangroup.hamyar.R
 import io.github.rayangroup.hamyar.ui.theme.DefaultShape
 import io.github.rayangroup.hamyar.ui.theme.Samim
-import io.github.rayangroup.hamyar.util.Constants
 import io.github.rayangroup.hamyar.util.Constants.DNS_SERVERS
 import io.github.rayangroup.hamyar.util.Constants.INTERNET_CHECK_DELAY
-import io.github.rayangroup.hamyar.util.Constants.MIXED_PERSIAN_REGEX
+import io.github.rayangroup.hamyar.util.Constants.PERSIAN_REGEX
 import io.github.rayangroup.hamyar.util.isLocalePersian
 import io.github.rayangroup.hamyar.util.log
 import io.github.rayangroup.hamyar.util.reportException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-
 
 @Composable
 fun Lottie(
@@ -361,7 +359,7 @@ fun PersianTextField(
     shape: Shape = TextFieldDefaults.shape,
     overrideDirection: Boolean = true
 ) {
-    val containsPersian = Constants.PERSIAN_REGEX.containsMatchIn(value)
+    val containsPersian = PERSIAN_REGEX.containsMatchIn(value)
 
     val direction = if (overrideDirection && value.isNotBlank()) {
         if (containsPersian) LayoutDirection.Rtl
@@ -419,7 +417,8 @@ fun PersianText(
     maxLines: Int = Int.MAX_VALUE,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current,
-    overrideDirection: Boolean = true
+    overrideDirection: Boolean = true,
+    forcePersian: Boolean = false
 ) {
     PersianText(
         text = AnnotatedString(text),
@@ -438,7 +437,8 @@ fun PersianText(
         maxLines = maxLines,
         onTextLayout = onTextLayout,
         style = style,
-        overrideDirection = overrideDirection
+        overrideDirection = overrideDirection,
+        forcePersian = forcePersian
     )
 }
 
@@ -460,10 +460,11 @@ fun PersianText(
     maxLines: Int = Int.MAX_VALUE,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current,
-    overrideDirection: Boolean = true
+    overrideDirection: Boolean = true,
+    forcePersian: Boolean = false
 ) {
     val isOverridingForPersian =
-        LocalContext.current.isLocalePersian(text.text) && MIXED_PERSIAN_REGEX.matches(text)
+        LocalContext.current.isLocalePersian(text.text) && (PERSIAN_REGEX.containsMatchIn(text) || forcePersian)
 
     val direction = if (overrideDirection) {
         if (isOverridingForPersian) LayoutDirection.Rtl
