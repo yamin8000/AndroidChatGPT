@@ -180,7 +180,7 @@ class ChatState(
     } catch (e: Exception) {
         log(e)
         reportException(e)
-        chat.value.first().content
+        title.value
     }
 
     private fun assembleChatForPrediction(): String {
