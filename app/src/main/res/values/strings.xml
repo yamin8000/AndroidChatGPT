@@ -40,4 +40,5 @@
     <string name="make_images_with_me">Make images</string>
     <string name="dalle">This feature is currently disabled.</string>
     <string name="ai_was_cancelled">Ai\'s answering was cancelled by user</string>
+    <string name="ai_rate_limited">Server busy, please try again a minute later.</string>
 </resources>

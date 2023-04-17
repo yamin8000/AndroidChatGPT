@@ -30,6 +30,7 @@ import io.github.rayangroup.hamyar.web.Web.apiOf
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 class ChatState(
     context: Context,
@@ -50,6 +51,8 @@ class ChatState(
     private val aiFailedToAnswer = context.getString(R.string.ai_failed_answering)
 
     private val aiCancelledAnswer = context.getString(R.string.ai_was_cancelled)
+
+    private val rateLimitedByServer = context.getString(R.string.ai_rate_limited)
 
     private val isModelSupported: Boolean
         get() = model.value in Constants.CHAT_MODELS
@@ -119,7 +122,11 @@ class ChatState(
         exception: Exception?
     ) = Chat(
         role = "assistant",
-        content = if (exception is CancellationException) aiCancelledAnswer else aiFailedToAnswer
+        content = when (exception) {
+            is CancellationException -> aiCancelledAnswer
+            is HttpException -> "Ai was rate limited"
+            else -> aiFailedToAnswer
+        }
     )
 
     private suspend fun chatCompletionRequest(): Pair<ChatCompletion?, Exception?> {
