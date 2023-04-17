@@ -2,6 +2,7 @@ package io.github.rayangroup.hamyar.web
 
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Protocol
 import okhttp3.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -40,15 +41,14 @@ object Web {
         } else logOkHttp
     }
 
-    private fun createOkHttpClient(): OkHttpClient {
-        return OkHttpClient.Builder()
-            .pingInterval(3L, TimeUnit.SECONDS)
-            .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
-            .readTimeout(TIMEOUT, TimeUnit.SECONDS)
-            .writeTimeout(TIMEOUT, TimeUnit.SECONDS)
-            .addInterceptor(HeaderAuthorizationInterceptor(ApiKey.AUTHORIZATION, ApiKey.KEY))
-            .build()
-    }
+    private fun createOkHttpClient() = OkHttpClient.Builder()
+        .pingInterval(3L, TimeUnit.SECONDS)
+        .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
+        .readTimeout(TIMEOUT, TimeUnit.SECONDS)
+        .writeTimeout(TIMEOUT, TimeUnit.SECONDS)
+        .addInterceptor(HeaderAuthorizationInterceptor(ApiKey.AUTHORIZATION, ApiKey.KEY))
+        .protocols(listOf(Protocol.HTTP_1_1, Protocol.HTTP_2))
+        .build()
 
     class HeaderAuthorizationInterceptor(
         private val headers: Map<String, String>

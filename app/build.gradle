@@ -13,8 +13,8 @@ android {
         applicationId "io.github.rayangroup.hamyar"
         minSdk 24
         targetSdk 33
-        versionCode 17
-        versionName "1.0.79"
+        versionCode 18
+        versionName "1.0.8"
         resourceConfigurations += ["fa", "en"]
         vectorDrawables {
             useSupportLibrary true

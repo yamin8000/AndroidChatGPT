@@ -6,12 +6,11 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.Clear
 import androidx.compose.material.icons.twotone.Send
@@ -35,13 +34,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.rayangroup.hamyar.R
 import io.github.rayangroup.hamyar.ui.animation.AnimatedDots
+import io.github.rayangroup.hamyar.ui.animation.TypewriterText
 import io.github.rayangroup.hamyar.ui.composables.*
 import kotlinx.coroutines.launch
 
-@OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class,
-    ExperimentalFoundationApi::class
-)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun ChatContent(
     historyId: Long,
@@ -54,7 +51,7 @@ fun ChatContent(
         historyId = remember { mutableStateOf(historyId) }
     )
 
-    val listState = rememberLazyListState()
+    val listState = rememberScrollState()
 
     if (listState.isScrollInProgress)
         LocalHapticFeedback.current.performHapticFeedback(HapticFeedbackType.TextHandleMove)
@@ -64,7 +61,7 @@ fun ChatContent(
     LaunchedEffect(chatSize) {
         val index = state.chat.value.size - 1
         if (index > 0)
-            listState.animateScrollToItem(index)
+            listState.animateScrollTo(listState.maxValue)
     }
 
     InternetAwareComposable { state.isOnline.value = it }
@@ -105,48 +102,46 @@ fun ChatContent(
             )
         },
         content = {
-            LazyColumn(
-                state = listState,
-                modifier = Modifier.fillMaxSize()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(listState)
             ) {
-                stickyHeader {
-                    AnimatedVisibility(
-                        visible = !state.isOnline.value,
-                        enter = slideInVertically() + fadeIn(),
-                        exit = slideOutVertically() + fadeOut()
-                    ) {
-                        OutlinedCard {
-                            PersianText(
-                                text = stringResource(R.string.no_internet_connection),
-                                color = MaterialTheme.colorScheme.error,
-                                modifier = Modifier
-                                    .padding(16.dp)
-                                    .fillMaxWidth()
-                            )
-                        }
+                AnimatedVisibility(
+                    visible = !state.isOnline.value,
+                    enter = slideInVertically() + fadeIn(),
+                    exit = slideOutVertically() + fadeOut()
+                ) {
+                    OutlinedCard {
+                        PersianText(
+                            text = stringResource(R.string.no_internet_connection),
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth()
+                        )
                     }
                 }
-                items(state.chat.value) {
+                state.chat.value.forEach {
                     ChatBubble(
                         content = it.content,
-                        owner = ChatBubbleOwner.of(it.role)
+                        owner = ChatBubbleOwner.of(it.role),
+                        isTypewriter = historyId == -1L && it.role == "assistant"
                     )
                 }
                 if (state.isWaitingForResponse.value) {
-                    item {
-                        ChatBubble(
-                            owner = ChatBubbleOwner.Assistant,
-                            content = {
-                                Box(
-                                    content = { AnimatedDots() },
-                                    modifier = Modifier.padding(
-                                        vertical = 4.dp,
-                                        horizontal = 8.dp
-                                    )
+                    ChatBubble(
+                        owner = ChatBubbleOwner.Assistant,
+                        content = {
+                            Box(
+                                content = { AnimatedDots() },
+                                modifier = Modifier.padding(
+                                    vertical = 4.dp,
+                                    horizontal = 8.dp
                                 )
-                            }
-                        )
-                    }
+                            )
+                        }
+                    )
                 }
             }
         },
@@ -227,7 +222,8 @@ private fun UserInput(
 @Composable
 fun ChatBubble(
     content: String,
-    owner: ChatBubbleOwner
+    owner: ChatBubbleOwner,
+    isTypewriter: Boolean
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -247,13 +243,23 @@ fun ChatBubble(
                 .show()
         },
         content = {
-            PersianText(
-                modifier = Modifier.padding(8.dp),
-                text = content.trim(),
-                overflow = TextOverflow.Ellipsis,
-                maxLines = if (isExpanded) Int.MAX_VALUE else 10,
-                overrideDirection = true
-            )
+            if (isTypewriter) {
+                TypewriterText(
+                    modifier = Modifier.padding(8.dp),
+                    text = content.trim(),
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = if (isExpanded) Int.MAX_VALUE else 10,
+                    overrideDirection = true
+                )
+            } else {
+                PersianText(
+                    modifier = Modifier.padding(8.dp),
+                    text = content.trim(),
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = if (isExpanded) Int.MAX_VALUE else 10,
+                    overrideDirection = true
+                )
+            }
         }
     )
 }
