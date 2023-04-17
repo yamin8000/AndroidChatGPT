@@ -71,6 +71,9 @@ private fun exceptionToRequestBody(
     put("labels", JSONArray(arrayOf("bug")))
     put("body", buildString {
         append("Time: ${(Build.TIME / 1000).toIso()}\n")
+        append("App Build Type: ${BuildConfig.BUILD_TYPE}")
+        append("App Version Code: ${BuildConfig.VERSION_CODE}")
+        append("App Version Name: ${BuildConfig.VERSION_NAME}")
         append("Android Version: ${Build.VERSION.RELEASE}\n")
         append("Brand: ${Build.BRAND}\n")
         append("Model: ${Build.MODEL}\n")
