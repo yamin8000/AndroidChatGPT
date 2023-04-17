@@ -66,7 +66,6 @@ fun reportException(
 private fun exceptionToRequestBody(
     exception: Exception
 ) = JSONObject().apply {
-    exception.stackTrace
     put("title", exception.message)
     put("assignees", JSONArray(arrayOf("yamin8000")))
     put("labels", JSONArray(arrayOf("bug")))

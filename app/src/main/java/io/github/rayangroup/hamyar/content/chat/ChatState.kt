@@ -106,9 +106,10 @@ class ChatState(
                 changeInputAllowance(true)
 
                 chat.value += aiAnswer
+                addChatItemToHistory(aiAnswer, historyId.value)
+
                 if (chat.value.size > 3)
                     title.value = createHistoryTitle(predictTitle())
-                addChatItemToHistory(aiAnswer, historyId.value)
                 updateChatHistoryTitle()
             }
         } else snackbarHost.showSnackbar(modelNotSupported)
