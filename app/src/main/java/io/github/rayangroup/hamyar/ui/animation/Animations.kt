@@ -60,7 +60,8 @@ fun TypewriterText(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current,
     overrideDirection: Boolean = true,
-    forcePersian: Boolean = false
+    forcePersian: Boolean = false,
+    typewriterDelay: Long = 50L
 ) {
     val builder = StringBuilder()
     val chars = remember { text.toCharArray() }
@@ -70,7 +71,7 @@ fun TypewriterText(
         for (char in chars) {
             builder.append(char)
             currentText = builder.toString()
-            delay(10)
+            delay(typewriterDelay)
         }
     }
     PersianText(
