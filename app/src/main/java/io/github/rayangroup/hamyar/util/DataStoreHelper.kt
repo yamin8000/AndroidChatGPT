@@ -58,4 +58,15 @@ class DataStoreHelper(
     ) {
         datastore.edit { it[booleanPreferencesKey(key)] = value }
     }
+
+    suspend fun getLong(
+        key: String
+    ) = datastore.data.map { it[longPreferencesKey(key)] }.firstOrNull()
+
+    suspend fun setLong(
+        key: String,
+        value: Long
+    ) {
+        datastore.edit { it[longPreferencesKey(key)] = value }
+    }
 }

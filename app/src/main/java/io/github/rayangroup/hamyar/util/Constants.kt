@@ -6,12 +6,11 @@ object Constants {
     lateinit var db: AppDatabase
     fun isDbInitialized() = ::db.isInitialized
     const val LOG_TAG = "<==>"
-
     const val THEME = "theme"
 
     const val API_MODEL = "api_model"
-    const val API_MODELS = "api_models"
 
+    const val API_MODELS = "api_models"
     const val DEFAULT_LANGUAGE_TAGS = "fa,en"
 
     const val DEFAULT_API_MODEL = "gpt-3.5-turbo"
@@ -25,6 +24,7 @@ object Constants {
     const val TITLE_PREDICTION_PROMPT = "find a title for this conversion:\n"
 
     const val INTERNET_CHECK_DELAY = 3000L
+
     val DNS_SERVERS = listOf(
         "8.8.8.8",
         "8.8.4.4",
@@ -35,4 +35,9 @@ object Constants {
         "10.202.10.202",
         "10.202.10.102"
     )
+
+    const val LAST_TRY = "last_try"
+    const val TRIES = "tries"
+    const val RATE_LIMIT_TIME = 3600
+    const val RATE_LIMIT_TRIES = 5
 }

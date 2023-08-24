@@ -150,30 +150,34 @@ fun ChatContent(
             }
         },
         bottomBar = {
-            Crossfade(state.inputVisibility.value) {
-                if (it) {
-                    UserInput(
-                        chatInput = state.chatInput.value,
-                        onNewChatInputSubmit = { state.scope.launch { state.newChatHandler(state.chatInput.value) } },
-                        onChatInputChange = { input -> state.chatInput.value = input }
-                    )
-                } else {
-                    BottomAppBar(
-                        actions = { },
-                        floatingActionButton = {
-                            FloatingActionButton(
-                                onClick = { state.cancel() },
-                                content = {
-                                    Icon(
-                                        imageVector = Icons.TwoTone.Stop,
-                                        contentDescription = stringResource(R.string.cancel)
-                                    )
-                                }
-                            )
-                        }
-                    )
+            Crossfade(
+                targetState = state.inputVisibility.value,
+                label = "",
+                content = { visibility ->
+                    if (visibility) {
+                        UserInput(
+                            chatInput = state.chatInput.value,
+                            onNewChatInputSubmit = { state.scope.launch { state.newChatHandler(state.chatInput.value) } },
+                            onChatInputChange = { input -> state.chatInput.value = input }
+                        )
+                    } else {
+                        BottomAppBar(
+                            actions = { },
+                            floatingActionButton = {
+                                FloatingActionButton(
+                                    onClick = { state.cancel() },
+                                    content = {
+                                        Icon(
+                                            imageVector = Icons.TwoTone.Stop,
+                                            contentDescription = stringResource(R.string.cancel)
+                                        )
+                                    }
+                                )
+                            }
+                        )
+                    }
                 }
-            }
+            )
         }
     )
 }

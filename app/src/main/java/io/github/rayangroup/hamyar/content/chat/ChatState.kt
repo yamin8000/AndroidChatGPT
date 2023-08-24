@@ -33,6 +33,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 class ChatState(
     context: Context,
@@ -49,6 +51,8 @@ class ChatState(
     private val retrofit = Web.getRetrofit()
 
     private val modelNotSupported = context.getString(R.string.model_not_supported)
+
+    private val locallyRateLimited = context.getString(R.string.locally_rate_limited)
 
     private val aiFailedToAnswer = context.getString(R.string.ai_failed_answering)
 
@@ -78,6 +82,22 @@ class ChatState(
         }
     }
 
+    private suspend fun isLocallyRateLimited(): Boolean {
+        val current = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+        val last = settings.getLong(Constants.LAST_TRY)
+        val tries = settings.getInt(Constants.TRIES) ?: 0
+        settings.setLong(Constants.LAST_TRY, current)
+        settings.setInt(Constants.TRIES, tries + 1)
+        return if (last != null && tries != 0) {
+            if (current - last < Constants.RATE_LIMIT_TIME) {
+                tries > Constants.RATE_LIMIT_TRIES
+            } else {
+                settings.setInt(Constants.TRIES, 0)
+                false
+            }
+        } else false
+    }
+
     private suspend fun createNewHistoryEntity() {
         historyId.longValue = db.historyDao().insert(
             HistoryEntity(title.value, DateTimeUtils.zonedNow())
@@ -94,30 +114,32 @@ class ChatState(
     suspend fun newChatHandler(
         chatInput: String
     ) {
-        if (isModelSupported) {
-            val newChat = Chat(role = "user", content = chatInput.trim())
-            chat.value += newChat
-            if (chat.value.size == 1)
-                createNewHistoryEntity()
-            addChatItemToHistory(newChat, historyId.longValue)
+        if (!isLocallyRateLimited()) {
+            if (isModelSupported) {
+                val newChat = Chat(role = "user", content = chatInput.trim())
+                chat.value += newChat
+                if (chat.value.size == 1)
+                    createNewHistoryEntity()
+                addChatItemToHistory(newChat, historyId.longValue)
 
-            resetInput()
-            changeInputAllowance(false)
-            chatJob = scope.launch {
-                val (completion, exception) = chatCompletionRequest()
-                val aiAnswer = if (completion != null && exception == null) {
-                    completion.choices.first().message
-                } else createChatForExceptions(exception)
-                changeInputAllowance(true)
+                resetInput()
+                changeInputAllowance(false)
+                chatJob = scope.launch {
+                    val (completion, exception) = chatCompletionRequest()
+                    val aiAnswer = if (completion != null && exception == null) {
+                        completion.choices.first().message
+                    } else createChatForExceptions(exception)
+                    changeInputAllowance(true)
 
-                chat.value += aiAnswer
-                addChatItemToHistory(aiAnswer, historyId.longValue)
+                    chat.value += aiAnswer
+                    addChatItemToHistory(aiAnswer, historyId.longValue)
 
-                if (chat.value.size > 3)
-                    title.value = createHistoryTitle(predictTitle())
-                updateChatHistoryTitle()
-            }
-        } else snackbarHost.showSnackbar(modelNotSupported)
+                    if (chat.value.size > 3)
+                        title.value = createHistoryTitle(predictTitle())
+                    updateChatHistoryTitle()
+                }
+            } else snackbarHost.showSnackbar(modelNotSupported)
+        } else snackbarHost.showSnackbar(locallyRateLimited)
     }
 
     private fun createChatForExceptions(
