@@ -3,7 +3,9 @@ package io.github.rayangroup.hamyar.content.chat
 import android.content.Context
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableLongState
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -34,7 +36,7 @@ import retrofit2.HttpException
 
 class ChatState(
     context: Context,
-    private val historyId: MutableState<Long>,
+    private val historyId: MutableLongState,
     val scope: LifecycleCoroutineScope,
     val chatInput: MutableState<String>,
     val chat: MutableState<List<Chat>>,
@@ -71,22 +73,22 @@ class ChatState(
         scope.launch {
             model.value = settings.getString(Constants.API_MODEL) ?: Constants.DEFAULT_API_MODEL
 
-            if (historyId.value != -1L)
+            if (historyId.longValue != -1L)
                 handleHistoryLoading()
         }
     }
 
     private suspend fun createNewHistoryEntity() {
-        historyId.value = db.historyDao().insert(
+        historyId.longValue = db.historyDao().insert(
             HistoryEntity(title.value, DateTimeUtils.zonedNow())
         )
     }
 
     private suspend fun handleHistoryLoading() {
         isUpdatable = true
-        chat.value = loadFromHistory(historyId.value)
+        chat.value = loadFromHistory(historyId.longValue)
         historyChat = chat.value
-        title.value = db.historyDao().getById(historyId.value)?.title ?: ""
+        title.value = db.historyDao().getById(historyId.longValue)?.title ?: ""
     }
 
     suspend fun newChatHandler(
@@ -97,7 +99,7 @@ class ChatState(
             chat.value += newChat
             if (chat.value.size == 1)
                 createNewHistoryEntity()
-            addChatItemToHistory(newChat, historyId.value)
+            addChatItemToHistory(newChat, historyId.longValue)
 
             resetInput()
             changeInputAllowance(false)
@@ -109,7 +111,7 @@ class ChatState(
                 changeInputAllowance(true)
 
                 chat.value += aiAnswer
-                addChatItemToHistory(aiAnswer, historyId.value)
+                addChatItemToHistory(aiAnswer, historyId.longValue)
 
                 if (chat.value.size > 3)
                     title.value = createHistoryTitle(predictTitle())
@@ -172,7 +174,7 @@ class ChatState(
     private suspend fun updateChatHistoryTitle(): Int? {
         val dao = db.historyDao()
         return dao
-            .getById(historyId.value)?.let { historyEntity ->
+            .getById(historyId.longValue)?.let { historyEntity ->
                 dao.update(
                     historyEntity.copy(title = title.value, date = DateTimeUtils.zonedNow())
                 )
@@ -229,7 +231,7 @@ class ChatState(
 @Composable
 fun rememberChatState(
     context: Context = LocalContext.current,
-    historyId: MutableState<Long> = rememberSaveable { mutableStateOf(-1L) },
+    historyId: MutableLongState = rememberSaveable { mutableLongStateOf(-1L) },
     scope: LifecycleCoroutineScope = LocalLifecycleOwner.current.lifecycleScope,
     chatInput: MutableState<String> = rememberSaveable { mutableStateOf("") },
     chat: MutableState<List<Chat>> = rememberSaveable { mutableStateOf(listOf()) },

@@ -38,7 +38,7 @@ import io.github.rayangroup.hamyar.ui.animation.TypewriterText
 import io.github.rayangroup.hamyar.ui.composables.*
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatContent(
     historyId: Long,
@@ -48,7 +48,7 @@ fun ChatContent(
     val defaultTitle = stringResource(R.string.new_chat)
     val state = rememberChatState(
         title = remember { mutableStateOf(defaultTitle) },
-        historyId = remember { mutableStateOf(historyId) }
+        historyId = remember { mutableLongStateOf(historyId) }
     )
 
     val listState = rememberScrollState()
@@ -71,13 +71,17 @@ fun ChatContent(
     ScaffoldWithTitle(
         onBackClick = { state.scope.launch { onBackClick() } },
         title = {
-            AnimatedContent(state.title.value) {
-                PersianText(
-                    text = state.title.value,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+            AnimatedContent(
+                targetState = state.title.value,
+                label = state.title.value,
+                content = {
+                    PersianText(
+                        text = it,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            )
         },
         snackbarHost = {
             SnackbarHost(state.snackbarHost) { data ->
