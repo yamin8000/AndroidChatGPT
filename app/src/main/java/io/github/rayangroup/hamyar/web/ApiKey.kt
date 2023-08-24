@@ -6,9 +6,7 @@ object ApiKey {
     private const val BEARER = "Bearer"
 
     var KEYS = mutableMapOf(
-        "$BEARER 123" to true,
-        "$BEARER 456" to true,
-        "$BEARER 789" to true,
+        "$BEARER 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" to true
     )
 
     const val GITHUB_TOKEN =
