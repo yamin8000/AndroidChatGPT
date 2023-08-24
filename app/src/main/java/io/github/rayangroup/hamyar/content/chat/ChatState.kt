@@ -86,16 +86,28 @@ class ChatState(
         val current = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
         val last = settings.getLong(Constants.LAST_TRY)
         val tries = settings.getInt(Constants.TRIES) ?: 0
-        settings.setLong(Constants.LAST_TRY, current)
-        settings.setInt(Constants.TRIES, tries + 1)
         return if (last != null && tries != 0) {
             if (current - last < Constants.RATE_LIMIT_TIME) {
-                tries > Constants.RATE_LIMIT_TRIES
+                if (tries <= Constants.RATE_LIMIT_TRIES) {
+                    updateUsage(tries + 1, current)
+                    false
+                } else true
             } else {
-                settings.setInt(Constants.TRIES, 0)
+                updateUsage(0, current)
                 false
             }
-        } else false
+        } else {
+            updateUsage(tries + 1, current)
+            false
+        }
+    }
+
+    private suspend fun updateUsage(
+        tries: Int,
+        now: Long
+    ) {
+        settings.setLong(Constants.LAST_TRY, now)
+        settings.setInt(Constants.TRIES, tries)
     }
 
     private suspend fun createNewHistoryEntity() {
@@ -134,7 +146,7 @@ class ChatState(
                     chat.value += aiAnswer
                     addChatItemToHistory(aiAnswer, historyId.longValue)
 
-                    if (chat.value.size > 3)
+                    if (chat.value.size > 5)
                         title.value = createHistoryTitle(predictTitle())
                     updateChatHistoryTitle()
                 }

@@ -39,5 +39,5 @@ object Constants {
     const val LAST_TRY = "last_try"
     const val TRIES = "tries"
     const val RATE_LIMIT_TIME = 3600
-    const val RATE_LIMIT_TRIES = 5
+    const val RATE_LIMIT_TRIES = 10
 }
