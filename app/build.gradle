@@ -7,14 +7,14 @@ plugins {
 
 android {
     namespace "io.github.rayangroup.hamyar"
-    compileSdk 34
+    compileSdk 33
 
     defaultConfig {
         applicationId "io.github.rayangroup.hamyar"
         minSdk 24
-        targetSdk 34
-        versionCode 22
-        versionName "1.0.84"
+        targetSdk 33
+        versionCode 21
+        versionName "1.0.83"
         resourceConfigurations += ["fa", "en"]
         vectorDrawables {
             useSupportLibrary true
