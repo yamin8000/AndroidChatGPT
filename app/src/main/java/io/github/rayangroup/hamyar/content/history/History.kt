@@ -215,6 +215,7 @@ fun DeleteConfirmModal(
             Column(
                 modifier = Modifier
                     .padding(16.dp)
+                    .padding(bottom = 64.dp)
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 content = {
