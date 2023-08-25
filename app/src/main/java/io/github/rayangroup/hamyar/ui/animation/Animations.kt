@@ -61,17 +61,20 @@ fun TypewriterText(
     style: TextStyle = LocalTextStyle.current,
     overrideDirection: Boolean = true,
     forcePersian: Boolean = false,
-    typewriterDelay: Long = 50L
+    typewriterDelay: Long = 50L,
+    typeWriterPass: () -> Unit
 ) {
     val builder = StringBuilder()
     val chars = remember { text.toCharArray() }
     var currentText by remember { mutableStateOf("") }
 
     LaunchedEffect(true) {
-        for (char in chars) {
+        chars.forEachIndexed { index, char ->
             builder.append(char)
             currentText = builder.toString()
             delay(typewriterDelay)
+            if (index % 15 == 0)
+                typeWriterPass()
         }
     }
     PersianText(

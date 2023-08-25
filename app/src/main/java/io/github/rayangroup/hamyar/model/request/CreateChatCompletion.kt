@@ -13,7 +13,7 @@ data class CreateChatCompletion(
     val stream: Boolean? = false,
     val stop: List<String>? = null,
     @field:Json(name = "max_tokens")
-    val maxTokens: Int? = 250,
+    val maxTokens: Int? = 100,
     @field:Json(name = "presence_penalty")
     val presencePenalty: Float? = 0f,
     @field:Json(name = "frequency_penalty")

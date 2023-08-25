@@ -3,8 +3,10 @@ package io.github.rayangroup.hamyar.content.chat
 import android.content.Context
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableLongState
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,7 +48,8 @@ class ChatState(
     val title: MutableState<String>,
     val isOnline: MutableState<Boolean>,
     val isWaitingForResponse: MutableState<Boolean>,
-    val inputVisibility: MutableState<Boolean>
+    val inputVisibility: MutableState<Boolean>,
+    val forceScroll: MutableState<Int>
 ) {
     private val retrofit = Web.getRetrofit()
 
@@ -273,7 +276,8 @@ fun rememberChatState(
     title: MutableState<String> = rememberSaveable { mutableStateOf("") },
     isOnline: MutableState<Boolean> = rememberSaveable { mutableStateOf(true) },
     isWaitingForResponse: MutableState<Boolean> = rememberSaveable { mutableStateOf(false) },
-    inputVisibility: MutableState<Boolean> = rememberSaveable { mutableStateOf(true) }
+    inputVisibility: MutableState<Boolean> = rememberSaveable { mutableStateOf(true) },
+    forceScroll: MutableState<Int> = rememberSaveable { mutableStateOf(0) }
 ) = remember(
     context,
     historyId,
@@ -284,7 +288,8 @@ fun rememberChatState(
     title,
     isOnline,
     isWaitingForResponse,
-    inputVisibility
+    inputVisibility,
+    forceScroll
 ) {
     ChatState(
         context,
@@ -296,6 +301,7 @@ fun rememberChatState(
         title,
         isOnline,
         isWaitingForResponse,
-        inputVisibility
+        inputVisibility,
+        forceScroll
     )
 }

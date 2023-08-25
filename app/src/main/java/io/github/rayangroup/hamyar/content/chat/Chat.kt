@@ -5,6 +5,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -62,6 +63,10 @@ fun ChatContent(
         val index = state.chat.value.size - 1
         if (index > 0)
             listState.animateScrollTo(listState.maxValue)
+    }
+
+    LaunchedEffect(state.forceScroll.value) {
+        listState.animateScrollBy(100f)
     }
 
     InternetAwareComposable { state.isOnline.value = it }
@@ -130,7 +135,8 @@ fun ChatContent(
                     ChatBubble(
                         content = it.content,
                         owner = ChatBubbleOwner.of(it.role),
-                        isTypewriter = historyId == -1L && it.role == "assistant"
+                        isTypewriter = historyId == -1L && it.role == "assistant",
+                        typeWriterPass = { state.forceScroll.value = ++state.forceScroll.value }
                     )
                 }
                 if (state.isWaitingForResponse.value) {
@@ -231,9 +237,10 @@ private fun UserInput(
 fun ChatBubble(
     content: String,
     owner: ChatBubbleOwner,
-    isTypewriter: Boolean
+    isTypewriter: Boolean,
+    typeWriterPass: () -> Unit = {}
 ) {
-    var isExpanded by remember { mutableStateOf(false) }
+    var isExpanded by remember { mutableStateOf(true) }
 
     val haptic = LocalHapticFeedback.current
     val textCopied = stringResource(R.string.text_copied)
@@ -257,7 +264,8 @@ fun ChatBubble(
                     text = content.trim(),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = if (isExpanded) Int.MAX_VALUE else 10,
-                    overrideDirection = true
+                    overrideDirection = true,
+                    typeWriterPass = typeWriterPass
                 )
             } else {
                 PersianText(
