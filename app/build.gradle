@@ -6,15 +6,15 @@ plugins {
 }
 
 android {
-    namespace "io.github.rayangroup.hamyar"
+    namespace "io.github.yamin8000.chatgpt"
     compileSdk 34
 
     defaultConfig {
-        applicationId "io.github.rayangroup.hamyar"
+        applicationId "io.github.yamin8000.chatgpt"
         minSdk 24
         targetSdk 34
-        versionCode 26
-        versionName "1.0.88"
+        versionCode 27
+        versionName "1.0.9"
         resourceConfigurations += ["fa", "en"]
         vectorDrawables {
             useSupportLibrary true

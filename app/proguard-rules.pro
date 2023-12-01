@@ -20,7 +20,7 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class io.github.rayangroup.hamyar.model.** { <fields>; }
+-keep class io.github.yamin8000.chatgpt.model.** { <fields>; }
 
 # This is generated automatically by the Android Gradle plugin.
 -dontwarn org.bouncycastle.jsse.BCSSLParameters
