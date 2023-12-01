@@ -4,9 +4,9 @@
 
 ## Preview
 
-<img src="/screenshots/1.jpg" alt="preview" width="225"/>
-<img src="/screenshots/2.jpg" alt="preview" width="225"/>
-<img src="/screenshots/3.jpg" alt="preview" width="225"/>s
+|                                                           |                                                           |                                                           |
+|:---------------------------------------------------------:|:---------------------------------------------------------:|:---------------------------------------------------------:|
+| <img src="/screenshots/1.jpg" alt="preview" width="225"/> | <img src="/screenshots/3.jpg" alt="preview" width="225"/> | <img src="/screenshots/2.jpg" alt="preview" width="225"/> |
 
 ## Compatibility
 
@@ -15,7 +15,7 @@
 ## Usage
 
 1. Fork the project
-2. Change [API Key](https://github.com/yamin8000/AndroidChatGPT/blob/7b22a20ac62a7065c81189e76b3aab53ce44d3a9/app/src/main/java/io/github/yamin8000/chatgpt/web/ApiKey.kt#L27C26-L27C26)
+2. Change API Key
 3. Build the project
 4. Enjoy
 
