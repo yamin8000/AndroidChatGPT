@@ -1,8 +1,10 @@
 package io.github.yamin8000.chatgpt.ui.composables
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,6 +17,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.ArrowBack
 import androidx.compose.material.icons.twotone.ArrowDropDownCircle
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -608,4 +611,25 @@ fun LetterSpacedPersianText(
             style = style
         )
     }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun Ripple(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit = {}
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    Box(
+        content = { content() },
+        modifier = modifier
+            .combinedClickable(
+                interactionSource = interactionSource,
+                indication = rememberRipple(),
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
+    )
 }

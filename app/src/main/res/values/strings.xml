@@ -13,9 +13,9 @@
     <string name="send">Send</string>
     <string name="new_chat">New Chat</string>
     <string name="model_not_supported">Selected model is not supported for current option.</string>
-    <string name="suggested_model_for_chat">It\'s better to use these models for chat:</string>
+    <string name="suggested_model_for_chat">It\’s better to use these models for chat:</string>
     <string name="change_it_to_default">Change to default</string>
-    <string name="no_internet_connection">There\'s no internet connection.</string>
+    <string name="no_internet_connection">There\’s no internet connection.</string>
     <string name="text_copied">Text copied.</string>
     <string name="language">Language</string>
     <string name="chat_history">Chat History</string>
@@ -42,4 +42,9 @@
     <string name="ai_was_cancelled">Ai\’s answering was cancelled by user</string>
     <string name="ai_rate_limited">Server busy, please try again a minute later.</string>
     <string name="locally_rate_limited">You are rate limited, Try again an hour later.</string>
+    <string name="license_header">This is a free application under GNU license, see more:</string>
+    <string name="gplv3_image_description">GPLv3 License Logo</string>
+    <string name="github_source" translatable="false">https://github.com/yamin8000/AndroidChatGPT</string>
+    <string name="license_link" translatable="false">https://raw.githubusercontent.com/yamin8000/AndroidChatGPT/main/LICENSE</string>
+    <string name="about_app" translatable="false">Yet Another ChatGPT Client Clone for Android with Kotlin and Jetpack Compose</string>
 </resources>

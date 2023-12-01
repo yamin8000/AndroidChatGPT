@@ -43,4 +43,6 @@
     <string name="ai_was_cancelled">پاسخگویی هوش مصنوعی توسط کاربر لغو شد</string>
     <string name="ai_rate_limited">سرور مشغول است، لطفا یک تا چند دقیقه دیگر تلاش کنید.</string>
     <string name="locally_rate_limited">در حال حاضر محدود شدید، یک ساعت دیگر تلاش کنید.</string>
+    <string name="license_header">این یک برنامه آزاد طبق پروانه گنو است که توضیحات بیشتر آن در ادامه آورده شده است</string>
+    <string name="gplv3_image_description">لوگو پروانه برنامه GPLv3</string>
 </resources>
