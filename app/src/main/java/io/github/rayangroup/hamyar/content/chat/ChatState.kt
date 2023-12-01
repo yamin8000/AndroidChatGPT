@@ -5,6 +5,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableLongState
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,7 +26,6 @@ import io.github.rayangroup.hamyar.util.Constants.db
 import io.github.rayangroup.hamyar.util.DataStoreHelper
 import io.github.rayangroup.hamyar.util.DateTimeUtils
 import io.github.rayangroup.hamyar.util.log
-import io.github.rayangroup.hamyar.util.reportException
 import io.github.rayangroup.hamyar.web.APIs
 import io.github.rayangroup.hamyar.web.Web
 import io.github.rayangroup.hamyar.web.Web.apiOf
@@ -58,8 +58,6 @@ class ChatState(
     private val aiFailedToAnswer = context.getString(R.string.ai_failed_answering)
 
     private val aiCancelledAnswer = context.getString(R.string.ai_was_cancelled)
-
-    private val rateLimitedByServer = context.getString(R.string.ai_rate_limited)
 
     private val isModelSupported: Boolean
         get() = model.value in Constants.CHAT_MODELS
@@ -179,7 +177,6 @@ class ChatState(
             null to e
         } catch (e: Exception) {
             log(e)
-            reportException(e)
             null to e
         }
     }
@@ -244,7 +241,6 @@ class ChatState(
             .removeSurrounding("\"")
     } catch (e: Exception) {
         log(e)
-        reportException(e)
         title.value
     }
 
@@ -275,7 +271,7 @@ fun rememberChatState(
     isOnline: MutableState<Boolean> = rememberSaveable { mutableStateOf(true) },
     isWaitingForResponse: MutableState<Boolean> = rememberSaveable { mutableStateOf(false) },
     inputVisibility: MutableState<Boolean> = rememberSaveable { mutableStateOf(true) },
-    forceScroll: MutableState<Int> = rememberSaveable { mutableStateOf(0) }
+    forceScroll: MutableState<Int> = rememberSaveable { mutableIntStateOf(0) }
 ) = remember(
     context,
     historyId,

@@ -48,7 +48,6 @@ import io.github.rayangroup.hamyar.util.Constants.INTERNET_CHECK_DELAY
 import io.github.rayangroup.hamyar.util.Constants.PERSIAN_REGEX
 import io.github.rayangroup.hamyar.util.isLocalePersian
 import io.github.rayangroup.hamyar.util.log
-import io.github.rayangroup.hamyar.util.reportException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -84,7 +83,6 @@ fun InternetAwareComposable(
         } == 0
     } catch (e: Exception) {
         log(e)
-        reportException(e)
         false
     }
 

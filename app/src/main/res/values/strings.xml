@@ -33,7 +33,7 @@
     <string name="about">About</string>
     <string name="chat_with_me">Chat with me</string>
     <string name="image_generation">Image Generation</string>
-    <string name="about_text">Hamyar is developed in the software engineering department of the Vira Rayan Caspian Technology Development Company in two parts: Dialogue and Image Generation.\nIn the Dialogue section, the user can talk with the artificial intelligence server of OpenAI, which is known as CHAT-GPT.\nIn the Images Generation section, the user provides his description of the desired image and the application displays four images related to the description.</string>
+    <string name="about_text">-</string>
     <string name="image_input_placeholder">Enter your desired image description.</string>
     <string name="empty_list">Nothing found.</string>
     <string name="ai_failed_answering">Ai failed to answer in a reasonable time.</string>

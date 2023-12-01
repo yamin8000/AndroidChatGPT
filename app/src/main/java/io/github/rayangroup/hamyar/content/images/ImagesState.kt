@@ -10,7 +10,6 @@ import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.lifecycleScope
 import io.github.rayangroup.hamyar.model.request.CreateUrlImage
 import io.github.rayangroup.hamyar.util.log
-import io.github.rayangroup.hamyar.util.reportException
 import io.github.rayangroup.hamyar.web.APIs
 import io.github.rayangroup.hamyar.web.Web
 import io.github.rayangroup.hamyar.web.Web.apiOf
@@ -33,7 +32,6 @@ class ImagesState(
                 .data
                 .map { it.url }
         } catch (e: Exception) {
-            reportException(e)
             val errorBody = (e as? HttpException)?.response()?.errorBody()
             log(e)
             log(errorBody?.string() ?: "Unknown generate image error")
