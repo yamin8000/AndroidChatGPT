@@ -81,7 +81,7 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:$retrofit_version")
     implementation("com.squareup.retrofit2:converter-moshi:$retrofit_version")
     //navigation
-    def nav_version = "2.7.5"
+    def nav_version = "2.7.7"
     implementation("androidx.navigation:navigation-compose:$nav_version")
     //datastore
     implementation("androidx.datastore:datastore-preferences:1.0.0")
